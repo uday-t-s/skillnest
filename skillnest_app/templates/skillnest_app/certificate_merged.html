@@ -1,0 +1,912 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+
+{% block title %}Certificate of Completion - SkillNest{% endblock %}
+
+{% block content %}
+<section class="certificate-section">
+   {% if certificate %}
+      <div class="certificate-wrapper">
+         <!-- Main Certificate -->
+         <div class="certificate-card" id="certificateContent">
+            <!-- Gold Border Top -->
+            <div class="certificate-border-top"></div>
+
+            <div class="certificate-inner">
+               <!-- Ornamental Header -->
+               <div class="certificate-ornament">
+                  <svg width="100%" height="30" viewBox="0 0 800 30" preserveAspectRatio="none">
+                     <path d="M 0 15 Q 50 5 100 15 T 200 15 T 300 15 T 400 15 T 500 15 T 600 15 T 700 15 T 800 15" stroke="#d4af37" stroke-width="2" fill="none"/>
+                     <circle cx="400" cy="15" r="6" fill="#d4af37"/>
+                  </svg>
+               </div>
+
+               <!-- Badge & Title -->
+               <div class="certificate-badge-section">
+                  <div class="certificate-badge-circle">
+                     <i class="fas fa-award"></i>
+                  </div>
+                  <h1 class="certificate-title">Certificate of Completion</h1>
+                  <p class="certificate-subtitle">This prestigious award is presented to</p>
+               </div>
+
+               <!-- Recipient Name -->
+               <div class="recipient-section">
+                  <h2 class="student-name">
+                     {% if certificate.user.first_name and certificate.user.last_name %}
+                        {{ certificate.user.first_name }} {{ certificate.user.last_name }}
+                     {% else %}
+                        {{ certificate.user.username }}
+                     {% endif %}
+                  </h2>
+                  <div class="name-underline"></div>
+               </div>
+
+               <!-- Achievement Statement -->
+               <div class="achievement-statement">
+                  <p class="achievement-text">For successfully demonstrating mastery and completion of</p>
+                  <h3 class="course-name">{{ certificate.course.title }}</h3>
+                  <p class="achievement-details">
+                     Hereby acknowledging the participant's proficiency in the subject matter, dedication to learning, 
+                     and successful fulfillment of all course requirements.
+                  </p>
+               </div>
+
+               <!-- Certificate Details Grid -->
+               <div class="details-grid">
+                  <div class="detail-box">
+                     <div class="detail-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                     </div>
+                     <div class="detail-content">
+                        <p class="detail-label">Completion Date</p>
+                        <p class="detail-value">{{ certificate.issue_date|date:"B d, Y" }}</p>
+                     </div>
+                  </div>
+
+                  <div class="detail-box">
+                     <div class="detail-icon">
+                        <i class="fas fa-chalkboard-user"></i>
+                     </div>
+                     <div class="detail-content">
+                        <p class="detail-label">Instructor</p>
+                        <p class="detail-value">
+                           {% if certificate.course.instructor.first_name %}
+                              {{ certificate.course.instructor.first_name }} {{ certificate.course.instructor.last_name }}
+                           {% else %}
+                              SkillNest Team
+                           {% endif %}
+                        </p>
+                     </div>
+                  </div>
+
+                  <div class="detail-box">
+                     <div class="detail-icon">
+                        <i class="fas fa-certificate"></i>
+                     </div>
+                     <div class="detail-content">
+                        <p class="detail-label">Certificate ID</p>
+                        <p class="detail-value certificate-code">{{ certificate.certificate_code }}</p>
+                     </div>
+                  </div>
+               </div>
+
+               <!-- Signature Area -->
+               <div class="signature-section">
+                  <div class="signature-block">
+                     <div class="signature-line"></div>
+                     <p class="signature-title">Course Instructor</p>
+                  </div>
+
+                  <div class="date-block">
+                     <p class="date-year">{{ certificate.issue_date|date:"Y" }}</p>
+                  </div>
+
+                  <div class="seal-block">
+                     <div class="skillnest-seal-circle">
+                        <i class="fas fa-check-circle"></i>
+                     </div>
+                     <p class="seal-text">SkillNest Platform</p>
+                  </div>
+               </div>
+
+               <!-- Skills Section (if any) -->
+               {% if certificate.course.skills.all %}
+               <div class="skills-showcase">
+                  <h3 class="skills-heading">Competencies Acquired</h3>
+                  <div class="skills-display">
+                     {% for skill in certificate.course.skills.all %}
+                        <div class="skill-tag">
+                           <i class="fas fa-star"></i>
+                           <span>{{ skill.skill_name }}</span>
+                        </div>
+                     {% endfor %}
+                  </div>
+               </div>
+               {% endif %}
+
+               <!-- Ornamental Footer -->
+               <div class="certificate-ornament">
+                  <svg width="100%" height="30" viewBox="0 0 800 30" preserveAspectRatio="none">
+                     <path d="M 0 15 Q 50 5 100 15 T 200 15 T 300 15 T 400 15 T 500 15 T 600 15 T 700 15 T 800 15" stroke="#d4af37" stroke-width="2" fill="none"/>
+                     <circle cx="400" cy="15" r="6" fill="#d4af37"/>
+                  </svg>
+               </div>
+            </div>
+
+            <!-- Gold Border Bottom -->
+            <div class="certificate-border-bottom"></div>
+         </div>
+
+         <!-- Action Buttons -->
+         <div class="actions-section">
+            <button onclick="printCertificate()" class="action-btn print-btn" title="Print your certificate">
+               <i class="fas fa-print"></i>
+               <span>Print</span>
+            </button>
+            <button onclick="downloadPDF()" class="action-btn download-btn" title="Download as PDF">
+               <i class="fas fa-download"></i>
+               <span>Download PDF</span>
+            </button>
+            <button onclick="shareCertificate()" class="action-btn share-btn" title="Share your achievement">
+               <i class="fas fa-share-alt"></i>
+               <span>Share</span>
+            </button>
+            <a href="{% url 'portfolio' certificate.user.username %}" class="action-btn portfolio-btn" title="Add to portfolio">
+               <i class="fas fa-briefcase"></i>
+               <span>My Portfolio</span>
+            </a>
+         </div>
+
+         <!-- Achievement Card -->
+         <div class="achievement-card">
+            <div class="achievement-card-top"></div>
+            <div class="achievement-content">
+               <div class="achievement-icon">
+                  <i class="fas fa-medal"></i>
+               </div>
+               <h3 class="achievement-title">Achievement Verified</h3>
+               <p class="achievement-message">Your certificate has been officially issued and verified by SkillNest.</p>
+               
+               <div class="verification-details">
+                  <p><strong>Course:</strong> {{ certificate.course.title }}</p>
+                  <p><strong>Issued:</strong> {{ certificate.issue_date|date:"M d, Y" }}</p>
+               </div>
+
+               {% if certificate.course.skills.all %}
+               <div class="skills-earned-list">
+                  <p class="list-title">Skills Gained:</p>
+                  <ul>
+                     {% for skill in certificate.course.skills.all %}
+                        <li><i class="fas fa-check"></i> {{ skill.skill_name }}</li>
+                     {% endfor %}
+                  </ul>
+               </div>
+               {% endif %}
+
+               <a href="{% url 'dashboard' %}" class="back-link">
+                  <i class="fas fa-arrow-left"></i> Return to Dashboard
+               </a>
+            </div>
+            <div class="achievement-card-bottom"></div>
+         </div>
+      </div>
+
+   {% else %}
+      <div class="empty-state">
+         <div class="empty-icon-wrapper">
+            <i class="fas fa-exclamation-circle"></i>
+         </div>
+         <h2>Certificate Not Found</h2>
+         <p>The certificate you're looking for doesn't exist or you don't have permission to view it.</p>
+         <a href="{% url 'home' %}" class="btn-home">Return to Home</a>
+      </div>
+   {% endif %}
+</section>
+
+<style>
+   * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+   }
+
+   .certificate-section {
+      background: linear-gradient(135deg, #0f172a 0%, #1a2847 50%, #0f172a 100%);
+      min-height: 100vh;
+      padding: 3rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Georgia', serif;
+   }
+
+   .certificate-wrapper {
+      width: 100%;
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+   }
+
+   /* ===== CERTIFICATE CARD ===== */
+   .certificate-card {
+      background: white;
+      border-radius: 2px;
+      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(212, 175, 55, 0.3);
+      overflow: hidden;
+   }
+
+   .certificate-border-top,
+   .certificate-border-bottom {
+      height: 8px;
+      background: linear-gradient(90deg, #d4af37 0%, #f0d97c 50%, #d4af37 100%);
+   }
+
+   .certificate-inner {
+      padding: 80px 60px;
+      text-align: center;
+      background: linear-gradient(135deg, #ffffff 0%, #fafbff 100%);
+      position: relative;
+   }
+
+   /* Ornamental Decorations */
+   .certificate-ornament {
+      margin: 2rem 0;
+      opacity: 0.6;
+   }
+
+   .certificate-ornament svg {
+      height: 20px;
+   }
+
+   /* Badge Section */
+   .certificate-badge-section {
+      margin-bottom: 3rem;
+   }
+
+   .certificate-badge-circle {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #d4af37 0%, #f0d97c 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 2rem;
+      font-size: 3rem;
+      color: #0f172a;
+      box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+      border: 3px solid #fff9e6;
+   }
+
+   .certificate-title {
+      font-size: 3.5rem;
+      color: #0f172a;
+      font-weight: normal;
+      letter-spacing: 3px;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+   }
+
+   .certificate-subtitle {
+      font-size: 1.2rem;
+      color: #475569;
+      letter-spacing: 1px;
+      font-weight: 300;
+      margin-bottom: 2rem;
+   }
+
+   /* Recipient Section */
+   .recipient-section {
+      margin: 3rem 0;
+   }
+
+   .student-name {
+      font-size: 3.2rem;
+      color: #0f172a;
+      font-weight: normal;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+      word-break: break-word;
+   }
+
+   .name-underline {
+      width: 80%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #d4af37, transparent);
+      margin: 0 auto;
+   }
+
+   /* Achievement Statement */
+   .achievement-statement {
+      margin: 3rem 0;
+      padding: 2rem;
+      background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+      border-left: 4px solid #d4af37;
+   }
+
+   .achievement-text {
+      font-size: 1.1rem;
+      color: #475569;
+      letter-spacing: 0.5px;
+      margin-bottom: 1rem;
+   }
+
+   .course-name {
+      font-size: 2.2rem;
+      color: #0f172a;
+      font-weight: normal;
+      letter-spacing: 1px;
+      margin: 1.5rem 0;
+      font-style: italic;
+   }
+
+   .achievement-details {
+      font-size: 1rem;
+      color: #64748b;
+      line-height: 1.8;
+      letter-spacing: 0.3px;
+   }
+
+   /* Details Grid */
+   .details-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin: 3rem 0;
+      padding: 2rem;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+   }
+
+   .detail-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+   }
+
+   .detail-icon {
+      font-size: 2.5rem;
+      color: #d4af37;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+      border-radius: 50%;
+      border: 2px solid #d4af37;
+   }
+
+   .detail-label {
+      font-size: 0.8rem;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+   }
+
+   .detail-value {
+      font-size: 1rem;
+      color: #0f172a;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+   }
+
+   .certificate-code {
+      font-family: 'Courier New', monospace;
+      letter-spacing: 2px;
+      color: #d4af37;
+      background: #f9fafb;
+      padding: 0.5rem 1rem;
+      border-radius: 3px;
+   }
+
+   /* Signature Section */
+   .signature-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 3rem;
+      margin-top: 4rem;
+      padding-top: 3rem;
+      border-top: 2px solid #e2e8f0;
+   }
+
+   .signature-block,
+   .seal-block {
+      text-align: center;
+   }
+
+   .date-block {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 0.5rem;
+   }
+
+   .signature-line {
+      height: 2px;
+      background: #0f172a;
+      margin-bottom: 1rem;
+      width: 80%;
+      margin-left: 10%;
+   }
+
+   .signature-title {
+      font-size: 0.9rem;
+      color: #0f172a;
+      letter-spacing: 0.5px;
+      margin: 0;
+      font-weight: 500;
+   }
+
+   .date-year {
+      font-size: 1.3rem;
+      color: #0f172a;
+      font-weight: normal;
+      margin: 0;
+      letter-spacing: 1px;
+   }
+
+   .skillnest-seal-circle {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, #d4af37 0%, #f0d97c 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 2rem;
+      color: #0f172a;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+   }
+
+   .seal-text {
+      font-size: 0.85rem;
+      color: #0f172a;
+      letter-spacing: 0.5px;
+      margin: 0;
+      font-weight: 500;
+   }
+
+   /* Skills Section */
+   .skills-showcase {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid #e2e8f0;
+   }
+
+   .skills-heading {
+      font-size: 1.3rem;
+      color: #0f172a;
+      letter-spacing: 1px;
+      margin-bottom: 1.5rem;
+      font-weight: normal;
+      text-transform: uppercase;
+   }
+
+   .skills-display {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+   }
+
+   .skill-tag {
+      background: linear-gradient(135deg, #d4af37 0%, #f0d97c 100%);
+      color: #0f172a;
+      padding: 0.8rem 1.5rem;
+      border-radius: 25px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+   }
+
+   .skill-tag i {
+      font-size: 0.8rem;
+   }
+
+   /* Actions Section */
+   .actions-section {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+   }
+
+   .action-btn {
+      padding: 1rem 2rem;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+   }
+
+   .print-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+   }
+
+   .print-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+   }
+
+   .download-btn {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+   }
+
+   .download-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+   }
+
+   .share-btn {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+   }
+
+   .share-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+   }
+
+   .portfolio-btn {
+      background: white;
+      color: #0f172a;
+      border: 2px solid #d4af37;
+   }
+
+   .portfolio-btn:hover {
+      background: #f9fafb;
+      transform: translateY(-3px);
+   }
+
+   /* Achievement Card */
+   .achievement-card {
+      background: white;
+      border-radius: 2px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      animation: slideUp 0.6s ease-out;
+   }
+
+   @keyframes slideUp {
+      from {
+         opacity: 0;
+         transform: translateY(30px);
+      }
+      to {
+         opacity: 1;
+         transform: translateY(0);
+      }
+   }
+
+   .achievement-card-top,
+   .achievement-card-bottom {
+      height: 4px;
+      background: linear-gradient(90deg, #d4af37 0%, #f0d97c 50%, #d4af37 100%);
+   }
+
+   .achievement-content {
+      padding: 3rem 2.5rem;
+      text-align: center;
+   }
+
+   .achievement-icon {
+      font-size: 3.5rem;
+      color: #d4af37;
+      margin-bottom: 1.5rem;
+   }
+
+   .achievement-title {
+      font-size: 1.8rem;
+      color: #0f172a;
+      margin-bottom: 1rem;
+      letter-spacing: 1px;
+   }
+
+   .achievement-message {
+      color: #475569;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+   }
+
+   .verification-details {
+      background: #f9fafb;
+      padding: 1.5rem;
+      border-radius: 4px;
+      margin: 2rem 0;
+      border-left: 4px solid #d4af37;
+      text-align: left;
+   }
+
+   .verification-details p {
+      color: #0f172a;
+      margin: 0.5rem 0;
+      letter-spacing: 0.3px;
+   }
+
+   .skills-earned-list {
+      margin: 2rem 0;
+      text-align: left;
+   }
+
+   .list-title {
+      color: #0f172a;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      letter-spacing: 0.5px;
+   }
+
+   .skills-earned-list ul {
+      list-style: none;
+      padding: 0;
+   }
+
+   .skills-earned-list li {
+      color: #475569;
+      padding: 0.6rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      letter-spacing: 0.3px;
+   }
+
+   .skills-earned-list i {
+      color: #10b981;
+      font-weight: bold;
+   }
+
+   .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0.9rem 2rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-top: 1.5rem;
+      transition: all 0.3s ease;
+   }
+
+   .back-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+   }
+
+   /* Empty State */
+   .empty-state {
+      background: white;
+      border-radius: 2px;
+      padding: 5rem 3rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+   }
+
+   .empty-icon-wrapper {
+      margin-bottom: 2rem;
+   }
+
+   .empty-icon-wrapper i {
+      font-size: 4rem;
+      color: #cbd5e0;
+   }
+
+   .empty-state h2 {
+      color: #0f172a;
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      letter-spacing: 1px;
+   }
+
+   .empty-state p {
+      color: #6b7280;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+   }
+
+   .btn-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0.9rem 2rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+   }
+
+   .btn-home:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+   }
+
+   /* Print Styles */
+   @media print {
+      .certificate-section {
+         background: white;
+         padding: 0;
+      }
+
+      .certificate-wrapper {
+         gap: 0;
+      }
+
+      .actions-section,
+      .achievement-card {
+         display: none !important;
+      }
+
+      .certificate-card {
+         box-shadow: none;
+      }
+   }
+
+   /* Responsive Design */
+   @media (max-width: 1024px) {
+      .certificate-inner {
+         padding: 60px 40px;
+      }
+
+      .certificate-title {
+         font-size: 2.8rem;
+      }
+
+      .student-name {
+         font-size: 2.5rem;
+      }
+
+      .course-name {
+         font-size: 1.8rem;
+      }
+
+      .details-grid {
+         grid-template-columns: 1fr;
+         gap: 1.5rem;
+      }
+
+      .signature-section {
+         grid-template-columns: 1fr;
+         gap: 2rem;
+      }
+   }
+
+   @media (max-width: 768px) {
+      .certificate-section {
+         padding: 1.5rem 1rem;
+      }
+
+      .certificate-inner {
+         padding: 40px 25px;
+      }
+
+      .certificate-title {
+         font-size: 2rem;
+      }
+
+      .student-name {
+         font-size: 1.8rem;
+      }
+
+      .course-name {
+         font-size: 1.3rem;
+      }
+
+      .actions-section {
+         flex-direction: column;
+         gap: 1rem;
+      }
+
+      .action-btn {
+         width: 100%;
+         justify-content: center;
+      }
+
+      .achievement-content {
+         padding: 2rem 1.5rem;
+      }
+   }
+
+   @media (max-width: 480px) {
+      .certificate-section {
+         padding: 1rem;
+      }
+
+      .certificate-inner {
+         padding: 30px 15px;
+      }
+
+      .certificate-title {
+         font-size: 1.5rem;
+         letter-spacing: 1px;
+      }
+
+      .student-name {
+         font-size: 1.3rem;
+      }
+
+      .course-name {
+         font-size: 1rem;
+      }
+
+      .detail-box {
+         align-items: flex-start;
+      }
+
+      .detail-icon {
+         width: 50px;
+         height: 50px;
+         font-size: 1.8rem;
+      }
+   }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+   function printCertificate() {
+      window.print();
+   }
+
+   function downloadPDF() {
+      const element = document.getElementById('certificateContent');
+      const studentName = document.querySelector('.student-name').textContent.trim();
+      const courseName = document.querySelector('.course-name').textContent.trim();
+      
+      const opt = {
+         margin: 10,
+         filename: `Certificate_${studentName.replace(/\s+/g, '_')}_${courseName.replace(/\s+/g, '_')}.pdf`,
+         image: { type: 'jpeg', quality: 0.98 },
+         html2canvas: { scale: 2, allowTaint: true },
+         jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+      };
+      
+      html2pdf().set(opt).from(element).save();
+   }
+
+   function shareCertificate() {
+      const studentName = document.querySelector('.student-name').textContent.trim();
+      const courseName = document.querySelector('.course-name').textContent.trim();
+      const text = `🎓 I just earned a certificate for completing "${courseName}" on SkillNest! Check it out: `;
+      
+      if (navigator.share) {
+         navigator.share({
+            title: 'SkillNest Certificate',
+            text: text,
+            url: window.location.href
+         }).catch(err => console.log('Share cancelled'));
+      } else {
+         navigator.clipboard.writeText(text + window.location.href).then(() => {
+            alert('Certificate link copied to clipboard!');
+         });
+      }
+   }
+</script>
+{% endblock %}

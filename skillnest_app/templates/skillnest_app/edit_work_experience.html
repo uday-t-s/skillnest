@@ -1,0 +1,251 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+
+{% block title %}Edit Work Experience - SkillNest{% endblock %}
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-container h2 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="date"],
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-family: inherit;
+        box-sizing: border-box;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    .checkbox-group label {
+        margin: 0;
+        cursor: pointer;
+        font-weight: normal;
+    }
+
+    .skills-section {
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .skills-section h4 {
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0 0 1rem 0;
+    }
+
+    .skill-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .skill-checkbox input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    .skill-checkbox label {
+        margin: 0;
+        cursor: pointer;
+        color: #4b5563;
+        font-weight: normal;
+    }
+
+    .two-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .form-actions button,
+    .form-actions a {
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #2563eb, #7c3aed);
+        color: white;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-cancel {
+        background: #f3f4f6;
+        color: #1f2937;
+        border: 1px solid #e5e7eb;
+    }
+
+    .btn-cancel:hover {
+        background: #e5e7eb;
+    }
+
+    .help-text {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+
+    @media (max-width: 600px) {
+        .two-column {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="form-container">
+    <h2><i class="fas fa-edit"></i> Edit Work Experience</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label for="company_name">Company Name *</label>
+            {{ form.company_name }}
+            {% if form.company_name.errors %}
+                <span style="color: #ef4444; font-size: 0.9rem;">{{ form.company_name.errors.0 }}</span>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="job_title">Job Title *</label>
+            {{ form.job_title }}
+            {% if form.job_title.errors %}
+                <span style="color: #ef4444; font-size: 0.9rem;">{{ form.job_title.errors.0 }}</span>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="description">Job Description *</label>
+            {{ form.description }}
+            {% if form.description.errors %}
+                <span style="color: #ef4444; font-size: 0.9rem;">{{ form.description.errors.0 }}</span>
+            {% endif %}
+        </div>
+
+        <div class="two-column">
+            <div class="form-group">
+                <label for="start_date">Start Date *</label>
+                {{ form.start_date }}
+                {% if form.start_date.errors %}
+                    <span style="color: #ef4444; font-size: 0.9rem;">{{ form.start_date.errors.0 }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="end_date">End Date</label>
+                {{ form.end_date }}
+                {% if form.end_date.errors %}
+                    <span style="color: #ef4444; font-size: 0.9rem;">{{ form.end_date.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-group checkbox-group">
+            {{ form.is_current }}
+            {{ form.is_current.label_tag }}
+        </div>
+
+        <div class="form-group">
+            <label>Skills Used (Select All That Apply)</label>
+            <div class="skills-section">
+                {% for checkbox in form.skills_used %}
+                    <div class="skill-checkbox">
+                        {{ checkbox.tag }}
+                        {{ checkbox.label_tag }}
+                    </div>
+                {% endfor %}
+                {% if form.skills_used.errors %}
+                    <span style="color: #ef4444; font-size: 0.9rem;">{{ form.skills_used.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Save Changes</button>
+            <a href="{% url 'portfolio' request.user.username %}" class="btn-cancel"><i class="fas fa-arrow-left"></i> Cancel</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

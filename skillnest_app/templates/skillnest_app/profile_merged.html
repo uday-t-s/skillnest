@@ -1,0 +1,607 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+
+{% block title %}Profile - {{ profile_user.first_name }} - SkillNest{% endblock %}
+
+{% block content %}
+<div class="profile-page-container">
+   {% if is_owner %}
+      <!-- Edit Profile Mode -->
+      <section class="profile-edit-section">
+         <div class="profile-edit-header">
+            <div class="header-content">
+               <h1><i class="fas fa-user-edit"></i> Update Your Profile</h1>
+               <p>Keep your professional information up to date</p>
+            </div>
+            <div class="profile-preview">
+               {% if profile_user.profile.profile_picture %}
+                  <img src="{{ profile_user.profile.profile_picture.url }}" alt="{{ profile_user.first_name }}">
+               {% else %}
+                  <img src="{% static 'images/pic-1.jpg' %}" alt="{{ profile_user.first_name }}">
+               {% endif %}
+               <span class="preview-label">Current Profile</span>
+            </div>
+         </div>
+
+         <div class="profile-edit-form-wrapper">
+            <form method="post" enctype="multipart/form-data" class="profile-edit-form">
+               {% csrf_token %}
+               
+               <!-- Personal Information Section -->
+               <div class="form-section">
+                  <div class="section-header">
+                     <h2><i class="fas fa-id-card"></i> Personal Information</h2>
+                     <p class="section-subtitle">Update your basic profile details</p>
+                  </div>
+
+                  <div class="form-grid-2">
+                     <div class="form-group">
+                        <label for="first_name">First Name</label>
+                        <input type="text" id="first_name" name="first_name" value="{{ profile_user.first_name }}" class="form-input" required>
+                        <span class="form-hint">Your first name</span>
+                     </div>
+
+                     <div class="form-group">
+                        <label for="last_name">Last Name</label>
+                        <input type="text" id="last_name" name="last_name" value="{{ profile_user.last_name }}" class="form-input" required>
+                        <span class="form-hint">Your last name</span>
+                     </div>
+                  </div>
+
+                  <div class="form-group">
+                     <label for="email">Email Address</label>
+                     <input type="email" id="email" name="email" value="{{ profile_user.email }}" class="form-input" readonly>
+                     <span class="form-hint">Your email address (contact support to change)</span>
+                  </div>
+               </div>
+
+               <!-- Profile Details Section -->
+               <div class="form-section">
+                  <div class="section-header">
+                     <h2><i class="fas fa-pen-fancy"></i> Professional Details</h2>
+                     <p class="section-subtitle">Tell others about yourself</p>
+                  </div>
+
+                  <div class="form-group">
+                     <label for="bio">Bio / About</label>
+                     <textarea id="bio" name="bio" class="form-textarea" placeholder="Write a compelling bio about yourself, your expertise, and teaching style...">{{ profile_user.profile.bio }}</textarea>
+                     <span class="form-hint">Maximum 500 characters - helps students learn about you</span>
+                  </div>
+
+                  {% if profile_user.profile.role == 'teacher' %}
+                     <div class="form-group">
+                        <label for="specialization">Specialization</label>
+                        <input type="text" id="specialization" name="specialization" value="{{ profile_user.profile.specialization|default:'' }}" class="form-input" placeholder="e.g., Web Development, Data Science, Digital Marketing">
+                        <span class="form-hint">Your main area of expertise</span>
+                     </div>
+                  {% endif %}
+               </div>
+
+               <!-- Profile Picture Section -->
+               <div class="form-section">
+                  <div class="section-header">
+                     <h2><i class="fas fa-image"></i> Profile Picture</h2>
+                     <p class="section-subtitle">Upload a professional photo</p>
+                  </div>
+
+                  <div class="form-group">
+                     <label for="profile_picture">Choose Image</label>
+                     <div class="file-upload-wrapper">
+                        <input type="file" id="profile_picture" name="profile_picture" class="form-input-file" accept="image/*">
+                        <div class="file-upload-hint">
+                           <i class="fas fa-cloud-upload-alt"></i>
+                           <p>Click to upload or drag and drop</p>
+                           <span>PNG, JPG, GIF up to 5MB</span>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+               <!-- Form Actions -->
+               <div class="form-actions">
+                  <a href="{% url 'teacher_profile' request.user.username %}" class="btn-secondary">
+                     <i class="fas fa-times"></i> Cancel
+                  </a>
+                  <button type="submit" class="btn-primary">
+                     <i class="fas fa-check"></i> Save Changes
+                  </button>
+               </div>
+            </form>
+         </div>
+      </section>
+   {% else %}
+      <!-- View Profile Mode -->
+      <section class="user-profile">
+         <h1 class="heading">User Profile</h1>
+
+         <div class="info">
+            <div class="user">
+               {% if profile_user.profile.profile_picture %}
+                  <img src="{{ profile_user.profile.profile_picture.url }}" alt="">
+               {% else %}
+                  <img src="{% static 'images/pic-1.jpg' %}" alt="">
+               {% endif %}
+               <h3>{{ profile_user.first_name }} {{ profile_user.last_name }}</h3>
+               <p>{{ profile_user.profile.role|title }}</p>
+               <p class="small-text">Joined {{ profile_user.date_joined|date:"F Y" }}</p>
+            </div>
+
+            <div class="user-info">
+               <p><strong>Email:</strong> {{ profile_user.email }}</p>
+               <p><strong>Bio:</strong> {{ profile_user.profile.bio|default:"No bio added yet" }}</p>
+               {% if profile_user.profile.role == 'teacher' %}
+                  <p><strong>Specialization:</strong> {{ profile_user.profile.specialization }}</p>
+                  <a href="{% url 'teacher_profile' profile_user.username %}" class="inline-btn">View Full Profile</a>
+               {% endif %}
+            </div>
+         </div>
+
+         <!-- User Stats -->
+         {% if profile_user.profile.role == 'teacher' %}
+            <div class="box-container">
+               <div class="box">
+                  <i class="fas fa-graduation-cap"></i>
+                  <div>
+                     <h3>{{ profile_user.course_set.count }}</h3>
+                     <p>Courses Created</p>
+                  </div>
+               </div>
+
+               <div class="box">
+                  <i class="fas fa-video"></i>
+                  <div>
+                     <h3>{{ total_lessons }}</h3>
+                     <p>Total Lessons</p>
+                  </div>
+               </div>
+
+               <div class="box">
+                  <i class="fas fa-star"></i>
+                  <div>
+                     <h3>4.7</h3>
+                     <p>Average Rating</p>
+                  </div>
+               </div>
+
+               <div class="box">
+                  <i class="fas fa-users"></i>
+                  <div>
+                     <h3>{{ total_students }}</h3>
+                     <p>Total Students</p>
+                  </div>
+               </div>
+            </div>
+         {% elif profile_user.profile.role == 'student' %}
+            <div class="box-container">
+               <div class="box">
+                  <i class="fas fa-graduation-cap"></i>
+                  <div>
+                     <h3>{{ enrolled_count }}</h3>
+                     <p>Courses Enrolled</p>
+                  </div>
+               </div>
+
+               <div class="box">
+                  <i class="fas fa-certificate"></i>
+                  <div>
+                     <h3>{{ certificates_count }}</h3>
+                     <p>Certificates Earned</p>
+                  </div>
+               </div>
+
+               <div class="box">
+                  <i class="fas fa-project-diagram"></i>
+                  <div>
+                     <h3>{{ projects_count }}</h3>
+                     <p>Portfolio Projects</p>
+                  </div>
+               </div>
+
+               <div class="box">
+                  <i class="fas fa-chart-line"></i>
+                  <div>
+                     <h3>{{ skills_count }}</h3>
+                     <p>Skills Acquired</p>
+                  </div>
+               </div>
+            </div>
+         {% endif %}
+      </section>
+   {% endif %}
+</div>
+
+<style>
+   .profile-page-container {
+      max-width: 1000px;
+      margin: 0 auto;
+   }
+
+   /* EDIT PROFILE SECTION */
+   .profile-edit-section {
+      animation: fadeIn 0.6s ease-out;
+   }
+
+   .profile-edit-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 2rem;
+      align-items: start;
+      margin-bottom: 3rem;
+      padding: 2.5rem;
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(16, 185, 129, 0.08));
+      border-radius: 16px;
+      border: 1px solid rgba(37, 99, 235, 0.1);
+   }
+
+   .profile-edit-header .header-content h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #1f2937;
+      margin: 0 0 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+   }
+
+   .profile-edit-header .header-content h1 i {
+      background: linear-gradient(135deg, #2563eb, #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+   }
+
+   .profile-edit-header .header-content p {
+      color: #6b7280;
+      font-size: 1rem;
+      margin: 0;
+      font-weight: 500;
+   }
+
+   .profile-preview {
+      position: relative;
+      text-align: center;
+   }
+
+   .profile-preview img {
+      width: 150px;
+      height: 150px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 3px solid white;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+   }
+
+   .profile-preview .preview-label {
+      display: block;
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      color: #6b7280;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+   }
+
+   /* FORM WRAPPER */
+   .profile-edit-form-wrapper {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+      border: 1px solid #e5e7eb;
+      overflow: hidden;
+   }
+
+   .profile-edit-form {
+      padding: 2.5rem;
+   }
+
+   /* FORM SECTIONS */
+   .form-section {
+      margin-bottom: 2.5rem;
+      padding-bottom: 2.5rem;
+      border-bottom: 2px solid #f3f4f6;
+   }
+
+   .form-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+   }
+
+   .section-header h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #1f2937;
+      margin: 0 0 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+   }
+
+   .section-header h2 i {
+      background: linear-gradient(135deg, #2563eb, #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+   }
+
+   .section-subtitle {
+      color: #6b7280;
+      font-size: 0.9rem;
+      margin: 0;
+      font-weight: 500;
+   }
+
+   /* FORM GROUPS */
+   .form-group {
+      margin-bottom: 1.75rem;
+   }
+
+   .form-group label {
+      display: block;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 0.65rem;
+      font-size: 0.95rem;
+   }
+
+   .form-input,
+   .form-textarea {
+      width: 100%;
+      padding: 0.95rem 1.15rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: #f9fafb;
+      color: #111827;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+   }
+
+   .form-input::placeholder,
+   .form-textarea::placeholder {
+      color: #9ca3af;
+   }
+
+   .form-input:hover,
+   .form-textarea:hover {
+      border-color: #d1d5db;
+      background: white;
+   }
+
+   .form-input:focus,
+   .form-textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+   }
+
+   .form-input[readonly] {
+      background: #f3f4f6;
+      cursor: not-allowed;
+      color: #6b7280;
+   }
+
+   .form-textarea {
+      resize: vertical;
+      min-height: 140px;
+      line-height: 1.6;
+   }
+
+   .form-hint {
+      display: block;
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 0.5rem;
+      font-weight: 500;
+   }
+
+   /* GRID LAYOUTS */
+   .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+   }
+
+   /* FILE UPLOAD */
+   .file-upload-wrapper {
+      position: relative;
+   }
+
+   .form-input-file {
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      z-index: 1;
+   }
+
+   .file-upload-hint {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem;
+      border: 2px dashed #d1d5db;
+      border-radius: 10px;
+      background: #fafafa;
+      text-align: center;
+      transition: all 0.3s ease;
+   }
+
+   .file-upload-wrapper:hover .file-upload-hint {
+      border-color: #2563eb;
+      background: #f0f9ff;
+   }
+
+   .file-upload-hint i {
+      font-size: 2.5rem;
+      color: #2563eb;
+      margin-bottom: 0.5rem;
+   }
+
+   .file-upload-hint p {
+      color: #111827;
+      font-weight: 600;
+      margin: 0.5rem 0 0;
+   }
+
+   .file-upload-hint span {
+      display: block;
+      color: #6b7280;
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+   }
+
+   /* FORM ACTIONS */
+   .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1.25rem;
+      padding-top: 2.5rem;
+      border-top: 2px solid #f3f4f6;
+      margin-top: 2.5rem;
+   }
+
+   .btn-primary,
+   .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 1rem 1.75rem;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+   }
+
+   .btn-primary {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #10b981 100%);
+      color: white;
+      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.3);
+   }
+
+   .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 32px rgba(37, 99, 235, 0.4);
+   }
+
+   .btn-secondary {
+      background: white;
+      color: #374151;
+      border: 2px solid #d1d5db;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+   }
+
+   .btn-secondary:hover {
+      background: #f9fafb;
+      border-color: #2563eb;
+      color: #2563eb;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.15);
+   }
+
+   /* ANIMATIONS */
+   @keyframes fadeIn {
+      from {
+         opacity: 0;
+      }
+      to {
+         opacity: 1;
+      }
+   }
+
+   /* RESPONSIVE */
+   @media (max-width: 768px) {
+      .profile-edit-header {
+         grid-template-columns: 1fr;
+         gap: 1.5rem;
+         padding: 1.5rem;
+      }
+
+      .profile-edit-header .header-content h1 {
+         font-size: 1.8rem;
+      }
+
+      .profile-edit-form {
+         padding: 1.75rem;
+      }
+
+      .form-grid-2 {
+         grid-template-columns: 1fr;
+         gap: 1rem;
+      }
+
+      .form-actions {
+         flex-direction: column-reverse;
+         padding-top: 1.75rem;
+         margin-top: 1.75rem;
+      }
+
+      .btn-primary,
+      .btn-secondary {
+         width: 100%;
+         justify-content: center;
+      }
+
+      .profile-preview {
+         text-align: center;
+      }
+
+      .profile-preview img {
+         width: 120px;
+         height: 120px;
+      }
+   }
+
+   @media (max-width: 480px) {
+      .profile-edit-header {
+         padding: 1rem;
+      }
+
+      .profile-edit-header .header-content h1 {
+         font-size: 1.5rem;
+      }
+
+      .profile-edit-form {
+         padding: 1.25rem;
+      }
+
+      .form-section {
+         margin-bottom: 1.75rem;
+         padding-bottom: 1.75rem;
+      }
+
+      .section-header h2 {
+         font-size: 1.1rem;
+      }
+
+      .form-input,
+      .form-textarea {
+         padding: 0.85rem 1rem;
+         font-size: 16px;
+      }
+
+      .file-upload-hint {
+         padding: 1.5rem;
+      }
+
+      .file-upload-hint i {
+         font-size: 2rem;
+      }
+
+      .btn-primary,
+      .btn-secondary {
+         padding: 0.9rem 1.25rem;
+         font-size: 0.9rem;
+      }
+   }
+</style>
+{% endblock %}

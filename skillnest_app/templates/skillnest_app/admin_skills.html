@@ -1,0 +1,304 @@
+{% extends 'skillnest_app/base.html' %}
+
+{% block title %}Skill Management - Admin{% endblock %}
+
+{% block content %}
+<style>
+    .admin-skills-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .page-header h2 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .btn-create {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 2rem;
+    }
+
+    .btn-create:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .skills-table-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    .table {
+        margin: 0;
+    }
+
+    .table thead {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .table thead th {
+        border: none;
+        padding: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+        background: #f9fafb;
+        transform: scale(1.01);
+    }
+
+    .table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .badge.bg-primary {
+        background: #3b82f6 !important;
+    }
+
+    .badge.bg-success {
+        background: #10b981 !important;
+    }
+
+    .badge.bg-warning {
+        background: #f59e0b !important;
+        color: white !important;
+    }
+
+    .badge.bg-info {
+        background: #8b5cf6 !important;
+    }
+
+    .action-btn {
+        padding: 0.4rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 0.3rem;
+        border: none;
+        cursor: pointer;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        text-decoration: none;
+    }
+
+    .action-btn.btn-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+    }
+
+    .action-btn.btn-primary:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        color: white;
+    }
+
+    .action-btn.btn-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+
+    .action-btn.btn-danger:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        color: white;
+    }
+
+    .btn-back {
+        background: #6b7280;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-top: 2rem;
+    }
+
+    .btn-back:hover {
+        background: #4b5563;
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+
+    .stats-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-box {
+        flex: 1;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #667eea;
+        margin: 0;
+    }
+
+    .stat-label {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .stats-row {
+            flex-direction: column;
+        }
+
+        .page-header h2 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="admin-skills-container">
+    <!-- Header -->
+    <div class="page-header">
+        <h2><i class="fas fa-cogs"></i> Skill Management</h2>
+        <p style="margin: 0.5rem 0 0 0; opacity: 0.95;">Manage platform skills and track usage statistics</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-number">{{ skills|length }}</div>
+            <div class="stat-label">Total Skills</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ skills|length }}</div>
+            <div class="stat-label">Showing</div>
+        </div>
+    </div>
+
+    <!-- Create Skill Button -->
+    <a href="{% url 'admin_create_skill' %}" class="btn-create">
+        <i class="fas fa-plus-circle"></i> Create New Skill
+    </a>
+
+    <!-- Skills Table -->
+    <div class="skills-table-card">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-tag"></i> Skill Name</th>
+                        <th><i class="fas fa-align-left"></i> Description</th>
+                        <th><i class="fas fa-layer-group"></i> Category</th>
+                        <th><i class="fas fa-users"></i> Students</th>
+                        <th><i class="fas fa-book"></i> Courses</th>
+                        <th><i class="fas fa-briefcase"></i> Jobs</th>
+                        <th><i class="fas fa-cogs"></i> Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for skill in skills %}
+                    <tr>
+                        <td><strong>{{ skill.skill_name }}</strong></td>
+                        <td>{{ skill.description|truncatewords:10|default:"No description" }}</td>
+                        <td>
+                            <span class="badge bg-primary">
+                                <i class="fas fa-folder"></i> {{ skill.get_category_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-success">
+                                <i class="fas fa-user-graduate"></i> {{ skill.student_count }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-warning">
+                                <i class="fas fa-book-open"></i> {{ skill.course_count }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">
+                                <i class="fas fa-briefcase"></i> {{ skill.job_count }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'admin_edit_skill' skill.id %}" class="action-btn btn-primary">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a href="{% url 'admin_delete_skill' skill.id %}" class="action-btn btn-danger">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center" style="padding: 3rem; color: #9ca3af;">
+                            <i class="fas fa-cogs" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+                            <strong>No skills found</strong>
+                            <p style="margin: 0.5rem 0 0 0;">Create your first skill to get started</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <a href="{% url 'admin_dashboard' %}" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+{% endblock %}

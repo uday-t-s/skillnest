@@ -1,0 +1,454 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+
+{% block title %}Courses - SkillNest{% endblock %}
+
+{% block content %}
+<section class="courses courses-page">
+   <!-- Existing Courses Section -->
+   <div class="courses-header">
+      <div>
+         <h1 class="heading">All Courses</h1>
+         <p class="small-text">Browse curated playlists to build job-ready skills.</p>
+      </div>
+      <div class="courses-filters">
+         <form method="get" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button type="submit" name="category" value="" class="inline-option-btn">All</button>
+            <button type="submit" name="category" value="Frontend" class="inline-option-btn">Frontend</button>
+            <button type="submit" name="category" value="Backend" class="inline-option-btn">Backend</button>
+            <button type="submit" name="category" value="Full-Stack" class="inline-option-btn">Full-Stack</button>
+            <button type="submit" name="category" value="Data AI" class="inline-option-btn">Data &amp; AI</button>
+         </form>
+      </div>
+   </div>
+
+   <div class="box-container">
+      {% for course in courses %}
+         {% with forloop.counter as course_index %}
+         <div class="box course-card-enhanced">
+            <!-- Instructor Profile Section -->
+            <div class="course-instructor-profile">
+               <div class="instructor-avatar-wrapper">
+                  {% if course.instructor.profile.profile_picture %}
+                     <img src="{{ course.instructor.profile.profile_picture.url }}" alt="{{ course.instructor.first_name }}" class="instructor-avatar">
+                  {% else %}
+                     {% with pic_num=course_index|add:0 %}
+                        {% if pic_num > 9 %}
+                           {% with pic_num|add:"-9" as adjusted_num %}
+                              <img src="{% static 'images/pic-'|add:adjusted_num|add:'.jpg' %}" alt="{{ course.instructor.first_name }}" class="instructor-avatar">
+                           {% endwith %}
+                        {% else %}
+                           <img src="{% static 'images/pic-'|add:pic_num|add:'.jpg' %}" alt="{{ course.instructor.first_name }}" class="instructor-avatar">
+                        {% endif %}
+                     {% endwith %}
+                  {% endif %}
+                  <span class="instructor-badge">Instructor</span>
+               </div>
+               <div class="instructor-info">
+                  <h4 class="instructor-name">{{ course.instructor.first_name }} {{ course.instructor.last_name }}</h4>
+                  <p class="instructor-title">{{ course.instructor.profile.specialization|default:"Expert Instructor" }}</p>
+                  <span class="course-updated">Updated · {{ course.updated_at|date:"M d, Y" }}</span>
+               </div>
+            </div>
+
+            <!-- Course Thumbnail -->
+            <div class="course-thumb-enhanced">
+               <img src="{% static 'images/thumb-1.png' %}" alt="{{ course.title }}" class="thumb-image">
+               <div class="course-video-count">
+                  <i class="fas fa-play-circle"></i>
+                  <span>
+                     {% if course.lessons.count > 0 %}
+                        {{ course.lessons.count }} Videos
+                     {% else %}
+                        Videos Available
+                     {% endif %}
+                  </span>
+               </div>
+            </div>
+
+            <!-- Course Content -->
+            <div class="course-content-section">
+               <h3 class="course-title">{{ course.title }}</h3>
+               <p class="course-description">{{ course.description|truncatewords:15 }}</p>
+               
+               <!-- Course Meta Info -->
+               <div class="course-meta-enhanced">
+                  {% if course.category %}
+                     <span class="course-category">
+                        <i class="fas fa-tag"></i> {{ course.category }}
+                     </span>
+                  {% endif %}
+                  {% if course.level %}
+                     <span class="course-level">
+                        <i class="fas fa-chart-line"></i> {{ course.level }}
+                     </span>
+                  {% endif %}
+               </div>
+            </div>
+
+            <!-- Course Actions -->
+            <div class="course-actions-enhanced">
+               <a href="{% url 'course_detail' course.id %}" class="btn-view-course">
+                  <i class="fas fa-play"></i> View Course
+               </a>
+               {% if course.lessons.count > 0 %}
+                  <a href="{% url 'course_detail' course.id %}" class="btn-enroll-course">
+                     <i class="fas fa-graduation-cap"></i> Enroll Now
+                  </a>
+               {% endif %}
+            </div>
+         </div>
+         {% endwith %}
+      {% empty %}
+         <div class="empty-courses">
+            <i class="fas fa-book-open"></i>
+            <h3>No Courses Available</h3>
+            <p>Check back soon for new courses!</p>
+         </div>
+      {% endfor %}
+   </div>
+</section>
+
+<style>
+   /* ENHANCED COURSE CARD */
+   .course-card-enhanced {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: slideInUp 0.6s ease-out;
+   }
+
+   .course-card-enhanced:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 50px rgba(15, 23, 42, 0.16) !important;
+   }
+
+   /* INSTRUCTOR PROFILE SECTION */
+   .course-instructor-profile {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 0 1.5rem;
+      border-bottom: 2px solid #f3f4f6;
+   }
+
+   .instructor-avatar-wrapper {
+      position: relative;
+      flex-shrink: 0;
+   }
+
+   .instructor-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 3px solid #2563eb;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+      transition: transform 0.3s ease;
+   }
+
+   .course-card-enhanced:hover .instructor-avatar {
+      transform: scale(1.08);
+   }
+
+   .instructor-badge {
+      position: absolute;
+      bottom: -8px;
+      right: -8px;
+      background: linear-gradient(135deg, #2563eb, #10b981);
+      color: white;
+      padding: 0.35rem 0.65rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+   }
+
+   .instructor-info {
+      flex: 1;
+      min-width: 0;
+   }
+
+   .instructor-name {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #1f2937;
+   }
+
+   .instructor-title {
+      margin: 0.35rem 0 0;
+      font-size: 0.85rem;
+      color: #6b7280;
+      font-weight: 500;
+   }
+
+   .course-updated {
+      display: block;
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: #9ca3af;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+   }
+
+   /* COURSE THUMBNAIL */
+   .course-thumb-enhanced {
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      aspect-ratio: 16/9;
+      background: #f3f4f6;
+   }
+
+   .thumb-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+   }
+
+   .course-card-enhanced:hover .thumb-image {
+      transform: scale(1.05);
+   }
+
+   .course-video-count {
+      position: absolute;
+      bottom: 0.75rem;
+      left: 0.75rem;
+      background: rgba(15, 23, 42, 0.9);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      backdrop-filter: blur(10px);
+   }
+
+   .course-video-count i {
+      color: #10b981;
+   }
+
+   /* COURSE CONTENT */
+   .course-content-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+   }
+
+   .course-title {
+      margin: 0 0 0.5rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1f2937;
+      line-height: 1.4;
+   }
+
+   .course-description {
+      margin: 0 0 1rem;
+      font-size: 0.85rem;
+      color: #6b7280;
+      line-height: 1.5;
+      flex: 1;
+   }
+
+   /* COURSE META */
+   .course-meta-enhanced {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #e5e7eb;
+   }
+
+   .course-category,
+   .course-level {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.85rem;
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(16, 185, 129, 0.1));
+      color: #2563eb;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+   }
+
+   .course-level {
+      color: #10b981;
+   }
+
+   /* COURSE ACTIONS */
+   .course-actions-enhanced {
+      display: flex;
+      gap: 0.75rem;
+   }
+
+   .btn-view-course,
+   .btn-enroll-course {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      flex: 1;
+      text-align: center;
+   }
+
+   .btn-view-course {
+      background: white;
+      color: #2563eb;
+      border: 2px solid #2563eb;
+   }
+
+   .btn-view-course:hover {
+      background: #f0f9ff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+   }
+
+   .btn-enroll-course {
+      background: linear-gradient(135deg, #2563eb, #10b981);
+      color: white;
+      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.25);
+   }
+
+   .btn-enroll-course:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.35);
+   }
+
+   /* EMPTY STATE */
+   .empty-courses {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #6b7280;
+   }
+
+   .empty-courses i {
+      font-size: 4rem;
+      color: #d1d5db;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+   }
+
+   .empty-courses h3 {
+      font-size: 1.5rem;
+      margin: 0;
+      color: #374151;
+   }
+
+   .empty-courses p {
+      margin: 0.5rem 0 0;
+      font-size: 0.95rem;
+   }
+
+   /* ANIMATIONS */
+   @keyframes slideInUp {
+      from {
+         opacity: 0;
+         transform: translateY(20px);
+      }
+      to {
+         opacity: 1;
+         transform: translateY(0);
+      }
+   }
+
+   /* RESPONSIVE DESIGN */
+   @media (max-width: 768px) {
+      .course-card-enhanced {
+         animation: slideInUp 0.6s ease-out;
+      }
+
+      .course-instructor-profile {
+         padding: 0.75rem 0 1rem;
+      }
+
+      .instructor-avatar {
+         width: 70px;
+         height: 70px;
+      }
+
+      .instructor-name {
+         font-size: 1rem;
+      }
+
+      .course-title {
+         font-size: 1rem;
+      }
+
+      .course-actions-enhanced {
+         gap: 0.5rem;
+      }
+
+      .btn-view-course,
+      .btn-enroll-course {
+         padding: 0.65rem 0.85rem;
+         font-size: 0.8rem;
+      }
+   }
+
+   @media (max-width: 480px) {
+      .course-instructor-profile {
+         gap: 0.75rem;
+         padding: 0.75rem 0 1rem;
+      }
+
+      .instructor-avatar {
+         width: 60px;
+         height: 60px;
+      }
+
+      .instructor-name {
+         font-size: 0.95rem;
+      }
+
+      .instructor-title {
+         font-size: 0.75rem;
+      }
+
+      .course-title {
+         font-size: 0.95rem;
+      }
+
+      .course-description {
+         font-size: 0.8rem;
+      }
+
+      .course-actions-enhanced {
+         flex-direction: column;
+      }
+
+      .btn-view-course,
+      .btn-enroll-course {
+         width: 100%;
+      }
+
+      .course-meta-enhanced {
+         margin-bottom: 1rem;
+         padding-bottom: 1rem;
+      }
+   }
+</style>
+{% endblock %}

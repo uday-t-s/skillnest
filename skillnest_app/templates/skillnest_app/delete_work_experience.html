@@ -1,0 +1,151 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+
+{% block title %}Delete Work Experience - SkillNest{% endblock %}
+
+{% block content %}
+<style>
+    .delete-container {
+        max-width: 500px;
+        margin: 3rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .delete-container h2 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #991b1b;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .experience-info {
+        background: #f9fafb;
+        border-left: 4px solid #2563eb;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .experience-info h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .experience-info p {
+        margin: 0.25rem 0;
+        color: #6b7280;
+        font-size: 0.95rem;
+    }
+
+    .job-title {
+        color: #2563eb;
+        font-weight: 600;
+    }
+
+    .warning-box {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .warning-box p {
+        margin: 0;
+        color: #991b1b;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .warning-box i {
+        font-size: 1.25rem;
+        margin-top: 0.1rem;
+        flex-shrink: 0;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .form-actions form,
+    .form-actions a {
+        flex: 1;
+    }
+
+    .btn-delete {
+        width: 100%;
+        padding: 0.75rem 1.5rem;
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-delete:hover {
+        background: #dc2626;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-cancel {
+        display: block;
+        padding: 0.75rem 1.5rem;
+        background: #f3f4f6;
+        color: #1f2937;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+        background: #e5e7eb;
+    }
+</style>
+
+<div class="delete-container">
+    <h2><i class="fas fa-trash-alt"></i> Delete Work Experience</h2>
+
+    <div class="experience-info">
+        <h3>{{ work_experience.company_name }}</h3>
+        <p><span class="job-title">{{ work_experience.job_title }}</span></p>
+        <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+            {% if work_experience.end_date %}
+                {{ work_experience.start_date|date:"M Y" }} - {{ work_experience.end_date|date:"M Y" }}
+            {% else %}
+                Started {{ work_experience.start_date|date:"M Y" }}
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="warning-box">
+        <p>
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>This action cannot be undone. This will permanently delete your work experience record from your portfolio.</span>
+        </p>
+    </div>
+
+    <div class="form-actions">
+        <form method="POST" style="width: 100%;">
+            {% csrf_token %}
+            <button type="submit" class="btn-delete"><i class="fas fa-trash-alt"></i> Delete Experience</button>
+        </form>
+        <a href="{% url 'portfolio' request.user.username %}" class="btn-cancel"><i class="fas fa-arrow-left"></i> Keep It</a>
+    </div>
+</div>
+
+{% endblock %}

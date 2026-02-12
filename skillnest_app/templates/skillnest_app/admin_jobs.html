@@ -1,0 +1,406 @@
+{% extends 'skillnest_app/base.html' %}
+
+{% block title %}Job Management - Admin{% endblock %}
+
+{% block content %}
+<style>
+    .admin-jobs-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .page-header h2 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .filter-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+
+    .filter-card .form-control,
+    .filter-card .form-select {
+        border-radius: 0.5rem;
+        border: 2px solid #e5e7eb;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .filter-card .form-control:focus,
+    .filter-card .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+    }
+
+    .btn-filter {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-filter:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .btn-create {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-create:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .jobs-table-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    .table {
+        margin: 0;
+    }
+
+    .table thead {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .table thead th {
+        border: none;
+        padding: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+        background: #f9fafb;
+        transform: scale(1.01);
+    }
+
+    .table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .badge.bg-success {
+        background: #10b981 !important;
+    }
+
+    .badge.bg-danger {
+        background: #ef4444 !important;
+    }
+
+    .badge.bg-primary {
+        background: #3b82f6 !important;
+    }
+
+    .badge.bg-warning {
+        background: #f59e0b !important;
+        color: white !important;
+    }
+
+    .badge.bg-info {
+        background: #8b5cf6 !important;
+    }
+
+    .action-btn {
+        padding: 0.4rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 0.3rem;
+        border: none;
+        cursor: pointer;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        text-decoration: none;
+    }
+
+    .action-btn.btn-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+    }
+
+    .action-btn.btn-primary:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        color: white;
+    }
+
+    .action-btn.btn-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+
+    .action-btn.btn-danger:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        color: white;
+    }
+
+    .action-btn.btn-warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+    }
+
+    .action-btn.btn-warning:hover {
+        background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        color: white;
+    }
+
+    .action-btn.btn-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+
+    .action-btn.btn-success:hover {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        color: white;
+    }
+
+    .btn-back {
+        background: #6b7280;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-top: 2rem;
+    }
+
+    .btn-back:hover {
+        background: #4b5563;
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+
+    .stats-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-box {
+        flex: 1;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #667eea;
+        margin: 0;
+    }
+
+    .stat-label {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .stats-row {
+            flex-direction: column;
+        }
+
+        .page-header h2 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="admin-jobs-container">
+    <!-- Header -->
+    <div class="page-header">
+        <h2><i class="fas fa-briefcase"></i> Job Management</h2>
+        <p style="margin: 0.5rem 0 0 0; opacity: 0.95;">Manage job postings and monitor applications</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-number">{{ jobs|length }}</div>
+            <div class="stat-label">Total Jobs</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ jobs|length }}</div>
+            <div class="stat-label">Showing</div>
+        </div>
+    </div>
+
+    <!-- Create Job Button -->
+    <div style="margin-bottom: 1.5rem;">
+        <a href="{% url 'admin_create_job' %}" class="btn-create">
+            <i class="fas fa-plus-circle"></i> Create New Job
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-card">
+        <form method="get" class="row g-3">
+            <div class="col-md-5">
+                <label class="form-label" style="font-weight: 600; color: #374151;">Search Jobs</label>
+                <input type="text" name="search" class="form-control" placeholder="Search by job title or company..."
+                    value="{{ search_query }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" style="font-weight: 600; color: #374151;">Filter by Status</label>
+                <select name="status" class="form-control">
+                    <option value="">All Jobs</option>
+                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-4" style="display: flex; align-items: flex-end; gap: 0.5rem;">
+                <button type="submit" class="btn btn-filter">
+                    <i class="fas fa-search"></i> Apply Filters
+                </button>
+                <a href="{% url 'admin_jobs' %}" class="btn btn-secondary"
+                    style="padding: 0.75rem 1.5rem; border-radius: 0.5rem;">
+                    <i class="fas fa-redo"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Jobs Table -->
+    <div class="jobs-table-card">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-briefcase"></i> Job Title</th>
+                        <th><i class="fas fa-building"></i> Company</th>
+                        <th><i class="fas fa-map-marker-alt"></i> Location</th>
+                        <th><i class="fas fa-clock"></i> Type</th>
+                        <th><i class="fas fa-toggle-on"></i> Status</th>
+                        <th><i class="fas fa-calendar"></i> Posted</th>
+                        <th><i class="fas fa-cogs"></i> Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in jobs %}
+                    <tr>
+                        <td><strong>{{ job.job_title|truncatewords:5 }}</strong></td>
+                        <td>{{ job.company_name }}</td>
+                        <td>{{ job.location }}</td>
+                        <td>
+                            {% if job.job_type == 'full_time' %}
+                            <span class="badge bg-primary"><i class="fas fa-briefcase"></i> Full Time</span>
+                            {% elif job.job_type == 'part_time' %}
+                            <span class="badge bg-warning"><i class="fas fa-clock"></i> Part Time</span>
+                            {% else %}
+                            <span class="badge bg-info"><i class="fas fa-file-contract"></i> Contract</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if job.is_active %}
+                            <span class="badge bg-success"><i class="fas fa-check-circle"></i> Active</span>
+                            {% else %}
+                            <span class="badge bg-danger"><i class="fas fa-times-circle"></i> Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ job.posted_date|date:"M d, Y" }}</td>
+                        <td>
+                            <form method="post" action="{% url 'admin_toggle_job_status' job.id %}"
+                                style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit"
+                                    class="action-btn {% if job.is_active %}btn-warning{% else %}btn-success{% endif %}">
+                                    {% if job.is_active %}<i class="fas fa-pause"></i> Deactivate{% else %}<i
+                                        class="fas fa-play"></i> Activate{% endif %}
+                                </button>
+                            </form>
+                            <a href="{% url 'admin_edit_job' job.id %}" class="action-btn btn-primary">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a href="{% url 'admin_delete_job' job.id %}" class="action-btn btn-danger">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center" style="padding: 3rem; color: #9ca3af;">
+                            <i class="fas fa-briefcase"
+                                style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+                            <strong>No jobs found</strong>
+                            <p style="margin: 0.5rem 0 0 0;">Try adjusting your filters or create a new job posting</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <a href="{% url 'admin_dashboard' %}" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,776 @@
+{% extends "skillnest_app/base.html" %}
+{% load static %}
+
+{% block title %}{{ job.job_title }} - SkillNest{% endblock %}
+
+{% block content %}
+<section class="job-detail-section">
+    <!-- Hero Header -->
+    <div class="job-hero-header">
+        <div class="hero-content">
+            <div class="breadcrumb">
+                <a href="{% url 'jobs' %}" class="breadcrumb-link"><i class="fas fa-briefcase"></i> All Jobs</a>
+                <span class="breadcrumb-sep">/</span>
+                <span class="breadcrumb-current">{{ job.company_name }}</span>
+            </div>
+            
+            <h1 class="job-title-hero">{{ job.job_title }}</h1>
+            <h2 class="company-header">{{ job.company_name }}</h2>
+            
+            <div class="hero-meta">
+                <span class="meta-badge location">
+                    <i class="fas fa-map-marker-alt"></i> {{ job.location }}
+                </span>
+                <span class="meta-badge job-type job-type-{{ job.job_type|lower }}">
+                    {{ job.get_job_type_display }}
+                </span>
+                <span class="meta-badge posted-date">
+                    <i class="fas fa-calendar-alt"></i> Posted {{ job.posted_date|date:"M d, Y" }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="job-detail-wrapper">
+        <div class="job-detail-main">
+            <!-- Salary Section -->
+            {% if job.salary_min and job.salary_max %}
+            <div class="detail-card salary-card">
+                <div class="card-icon salary-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Salary Package</h3>
+                    <p class="salary-range">₹{{ job.salary_min|floatformat:0 }} - ₹{{ job.salary_max|floatformat:0 }}</p>
+                    <span class="salary-label">Per Annum</span>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Job Details Grid -->
+            <div class="detail-card">
+                <h3 class="card-title"><i class="fas fa-briefcase"></i> Job Details</h3>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Location</span>
+                        <p class="detail-value"><i class="fas fa-map-marker-alt"></i> {{ job.location }}</p>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Job Type</span>
+                        <p class="detail-value">{{ job.get_job_type_display }}</p>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Posted Date</span>
+                        <p class="detail-value"><i class="fas fa-calendar-check"></i> {{ job.posted_date|date:"M d, Y" }}</p>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Deadline</span>
+                        <p class="detail-value"><i class="fas fa-hourglass-end"></i> {{ job.last_date|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Description -->
+            <div class="detail-card">
+                <h3 class="card-title"><i class="fas fa-file-alt"></i> About This Role</h3>
+                <div class="job-description">
+                    {{ job.description }}
+                </div>
+            </div>
+
+            <!-- Requirements -->
+            <div class="detail-card">
+                <h3 class="card-title"><i class="fas fa-list-check"></i> Requirements</h3>
+                <div class="job-requirements">
+                    {{ job.requirements }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="job-detail-sidebar">
+            <!-- Required Skills -->
+            <div class="sidebar-card">
+                <h3 class="sidebar-title"><i class="fas fa-star"></i> Required Skills</h3>
+                <div class="skills-container">
+                    {% for skill in required_skills %}
+                        <span class="skill-badge">{{ skill.skill_name }}</span>
+                    {% empty %}
+                        <p class="empty-text">No specific skills required</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Match Score Card -->
+            {% if user.is_authenticated %}
+            <div class="sidebar-card match-card">
+                <h3 class="sidebar-title"><i class="fas fa-handshake"></i> Your Match</h3>
+                
+                <div class="match-display">
+                    <div class="match-circle">
+                        <svg viewBox="0 0 100 100" class="match-svg">
+                            <circle cx="50" cy="50" r="45" class="match-bg"></circle>
+                            <circle cx="50" cy="50" r="45" class="match-progress" data-match="{{ match_percent }}"></circle>
+                        </svg>
+                        <div class="match-text">
+                            <span class="match-score">{{ match_percent|floatformat:0 }}</span>
+                            <span class="match-symbol">%</span>
+                        </div>
+                    </div>
+
+                    <div class="match-feedback">
+                        {% if match_percent >= 75 %}
+                            <div class="feedback-badge excellent">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Excellent Match!</span>
+                            </div>
+                        {% elif match_percent >= 50 %}
+                            <div class="feedback-badge good">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Good Match</span>
+                            </div>
+                        {% elif match_percent > 0 %}
+                            <div class="feedback-badge partial">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>Partial Match</span>
+                            </div>
+                        {% else %}
+                            <div class="feedback-badge none">
+                                <i class="fas fa-times-circle"></i>
+                                <span>Learn More Skills</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <button class="btn-apply-main">
+                    <i class="fas fa-paper-plane"></i> Apply Now
+                </button>
+            </div>
+            {% else %}
+            <div class="sidebar-card auth-card">
+                <h3 class="sidebar-title"><i class="fas fa-lock"></i> Sign In Required</h3>
+                <p class="auth-text">Sign in to see your match score and apply for this position.</p>
+                <a href="{% url 'login' %}" class="btn-signin">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <p class="signup-text">Don't have an account? <a href="{% url 'signup' %}">Sign up</a></p>
+            </div>
+            {% endif %}
+
+            <!-- Company Card -->
+            <div class="sidebar-card company-card">
+                <h3 class="sidebar-title"><i class="fas fa-building"></i> About Company</h3>
+                <p class="company-name-card">{{ job.company_name }}</p>
+                <p class="company-tagline">Hiring for exciting opportunities and career growth.</p>
+                <div class="company-badge">
+                    <i class="fas fa-star"></i> Verified Company
+                </div>
+            </div>
+
+            <!-- Deadline Warning -->
+            <div class="deadline-card">
+                <i class="fas fa-hourglass-end"></i>
+                <strong>Apply by {{ job.last_date|date:"M d, Y" }}</strong>
+                <p>Don't miss this opportunity!</p>
+            </div>
+        </aside>
+    </div>
+</section>
+
+<style>
+    .job-detail-section {
+        background: #f8fafc;
+        min-height: 100vh;
+        padding-top: 0;
+    }
+
+    .job-hero-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .hero-content {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .breadcrumb-link {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: color 0.3s ease;
+    }
+
+    .breadcrumb-link:hover {
+        color: white;
+    }
+
+    .breadcrumb-sep {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .breadcrumb-current {
+        color: white;
+        font-weight: 600;
+    }
+
+    .job-title-hero {
+        font-size: 2.8rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        line-height: 1.2;
+    }
+
+    .company-header {
+        font-size: 1.3rem;
+        font-weight: 500;
+        opacity: 0.95;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .meta-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.6rem 1.2rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .job-type-full_time {
+        background: rgba(16, 185, 129, 0.2);
+        border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .job-type-part_time {
+        background: rgba(245, 158, 11, 0.2);
+        border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    .job-type-contract {
+        background: rgba(139, 92, 246, 0.2);
+        border-color: rgba(139, 92, 246, 0.4);
+    }
+
+    .job-detail-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem 3rem;
+    }
+
+    .detail-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+    }
+
+    .detail-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    .salary-card {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+        border-left: 4px solid #10b981;
+    }
+
+    .card-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .card-content h3 {
+        margin: 0 0 0.5rem 0;
+        color: #2d3748;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .salary-range {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #10b981;
+        margin: 0.5rem 0;
+    }
+
+    .salary-label {
+        font-size: 0.85rem;
+        color: #718096;
+    }
+
+    .card-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin: 0 0 1.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .card-title i {
+        color: #667eea;
+        font-size: 1.4rem;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .detail-item {
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 8px;
+        border-left: 3px solid #667eea;
+    }
+
+    .detail-label {
+        display: block;
+        font-size: 0.75rem;
+        color: #718096;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        letter-spacing: 0.5px;
+    }
+
+    .detail-value {
+        margin: 0;
+        color: #2d3748;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .detail-value i {
+        color: #667eea;
+    }
+
+    .job-description,
+    .job-requirements {
+        color: #4a5568;
+        line-height: 1.8;
+        white-space: pre-wrap;
+    }
+
+    /* Sidebar */
+    .job-detail-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .sidebar-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+    }
+
+    .sidebar-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    .sidebar-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin: 0 0 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .sidebar-title i {
+        color: #667eea;
+        font-size: 1.2rem;
+    }
+
+    .skills-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+    }
+
+    .skill-badge {
+        background: linear-gradient(135deg, #f0f4ff 0%, #f3e8ff 100%);
+        color: #667eea;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: 1px solid #cbd5e0;
+        transition: all 0.3s ease;
+    }
+
+    .skill-badge:hover {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: transparent;
+    }
+
+    .match-card {
+        background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
+        border-left: 4px solid #f59e0b;
+    }
+
+    .match-display {
+        text-align: center;
+        padding: 1.5rem 0;
+    }
+
+    .match-circle {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        margin: 0 auto 1.5rem;
+    }
+
+    .match-svg {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+    }
+
+    .match-bg {
+        fill: none;
+        stroke: rgba(0, 0, 0, 0.1);
+        stroke-width: 3;
+    }
+
+    .match-progress {
+        fill: none;
+        stroke: url(#gradient);
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-dasharray: 282.74;
+    }
+
+    .match-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .match-score {
+        display: block;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #667eea;
+    }
+
+    .match-symbol {
+        font-size: 1rem;
+        color: #667eea;
+        font-weight: 700;
+    }
+
+    .match-feedback {
+        margin-bottom: 1rem;
+    }
+
+    .feedback-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.8rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .feedback-badge.excellent {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .feedback-badge.good {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .feedback-badge.partial {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .feedback-badge.none {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .feedback-badge i {
+        font-size: 1.1rem;
+    }
+
+    .btn-apply-main {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-apply-main:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.35);
+    }
+
+    .auth-card {
+        background: linear-gradient(135deg, #f3e8ff 0%, #f0e6ff 100%);
+        border-left: 4px solid #8b5cf6;
+        text-align: center;
+    }
+
+    .auth-text {
+        color: #4a5568;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .btn-signin {
+        display: block;
+        padding: 0.8rem 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 700;
+        text-align: center;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-signin:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .signup-text {
+        font-size: 0.85rem;
+        color: #718096;
+        margin-top: 1rem;
+    }
+
+    .signup-text a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    .company-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #f0f4ff 100%);
+        border-left: 4px solid #667eea;
+    }
+
+    .company-name-card {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .company-tagline {
+        color: #718096;
+        font-size: 0.9rem;
+        margin: 0 0 1rem 0;
+    }
+
+    .company-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #dcfce7;
+        color: #166534;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .deadline-card {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        border-left: 4px solid #dc2626;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        color: #991b1b;
+        font-weight: 600;
+    }
+
+    .deadline-card i {
+        display: block;
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .deadline-card p {
+        margin: 0.5rem 0 0 0;
+        font-size: 0.9rem;
+    }
+
+    .empty-text {
+        color: #9ca3af;
+        font-style: italic;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .job-detail-wrapper {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .job-title-hero {
+            font-size: 2rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .job-hero-header {
+            padding: 2rem 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .job-title-hero {
+            font-size: 1.5rem;
+        }
+
+        .company-header {
+            font-size: 1.1rem;
+        }
+
+        .detail-card {
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .salary-card {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .job-detail-wrapper {
+            padding: 0 1rem 2rem;
+        }
+
+        .sidebar-title {
+            font-size: 1rem;
+        }
+
+        .match-circle {
+            width: 100px;
+            height: 100px;
+        }
+
+        .match-score {
+            font-size: 1.8rem;
+        }
+
+        .hero-meta {
+            gap: 0.6rem;
+        }
+
+        .meta-badge {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.9rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .job-hero-header {
+            padding: 1.5rem 1rem;
+        }
+
+        .breadcrumb {
+            font-size: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .job-title-hero {
+            font-size: 1.3rem;
+        }
+
+        .detail-card {
+            padding: 1rem;
+        }
+
+        .details-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,323 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+{% block title %}Create Course - SkillNest{% endblock %}
+{% block content %}
+<div class="create-course-container">
+    <div class="form-header">
+        <h1><i class="fas fa-plus-circle"></i> Create New Course</h1>
+        <p>Share your knowledge and create an engaging learning experience</p>
+    </div>
+
+    <div class="form-card">
+        <form method="post" enctype="multipart/form-data" class="course-form">
+            {% csrf_token %}
+
+            <div class="form-section">
+                <h3><i class="fas fa-info-circle"></i> Course Information</h3>
+
+                <div class="form-group">
+                    <label for="{{ form.title.id_for_label }}">Course Title *</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <div class="error-message">{{ form.title.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.category.id_for_label }}">Category *</label>
+                    {{ form.category }}
+                    {% if form.category.errors %}
+                        <div class="error-message">{{ form.category.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}">Description *</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="error-message">{{ form.description.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.duration_hours.id_for_label }}">Duration (Hours)</label>
+                        {{ form.duration_hours }}
+                        {% if form.duration_hours.errors %}
+                            <div class="error-message">{{ form.duration_hours.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.skills.id_for_label }}">Skills Covered</label>
+                    {{ form.skills }}
+                    <small class="form-help">Select skills that students will learn in this course</small>
+                    {% if form.skills.errors %}
+                        <div class="error-message">{{ form.skills.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3><i class="fas fa-play-circle"></i> First Lesson (Optional)</h3>
+                <p class="section-description">You can add more lessons later. This helps students get a preview of your course.</p>
+
+                <div class="form-group">
+                    <label for="{{ form.initial_lesson_title.id_for_label }}">Lesson Title</label>
+                    {{ form.initial_lesson_title }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.initial_lesson_description.id_for_label }}">Lesson Description</label>
+                    {{ form.initial_lesson_description }}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.initial_lesson_duration.id_for_label }}">Duration (Minutes)</label>
+                        {{ form.initial_lesson_duration }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.initial_lesson_video_file.id_for_label }}">Upload Video</label>
+                        {{ form.initial_lesson_video_file }}
+                        <small class="form-help">Supported formats: MP4, WebM, OGV (Max 500MB)</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.initial_lesson_video_url.id_for_label }}">Or Video URL</label>
+                    {{ form.initial_lesson_video_url }}
+                    <small class="form-help">YouTube, Vimeo, or direct video URLs</small>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'teacher_course_management' %}" class="btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Courses
+                </a>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i> Create Course
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .create-course-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .form-header h1 {
+        font-size: 2.5rem;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .form-header h1 i {
+        color: #667eea;
+    }
+
+    .form-header p {
+        color: #6b7280;
+        font-size: 1.1rem;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .course-form {
+        padding: 2rem;
+    }
+
+    .form-section {
+        margin-bottom: 2.5rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .form-section h3 {
+        color: #1f2937;
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-section h3 i {
+        color: #667eea;
+    }
+
+    .section-description {
+        color: #6b7280;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        background: #fafafa;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background: white;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-group select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.75rem center;
+        background-repeat: no-repeat;
+        background-size: 1rem;
+        padding-right: 2.5rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .form-help {
+        color: #6b7280;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .error-message {
+        color: #dc2626;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 2rem;
+        border-top: 1px solid #e5e7eb;
+        margin-top: 2rem;
+    }
+
+    .btn-primary, .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+    .btn-secondary:hover {
+        background: #e5e7eb;
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 768px) {
+        .create-course-container {
+            padding: 1rem;
+        }
+
+        .form-header h1 {
+            font-size: 2rem;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .course-form {
+            padding: 1.5rem;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn-primary, .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}

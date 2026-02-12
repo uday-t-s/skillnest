@@ -1,0 +1,317 @@
+{% extends 'skillnest_app/base.html' %}
+
+{% block title %}Certificate Management - Admin{% endblock %}
+
+{% block content %}
+<style>
+    .admin-certs-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .page-header h2 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .search-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+
+    .search-card .form-control {
+        border-radius: 0.5rem;
+        border: 2px solid #e5e7eb;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-card .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+    }
+
+    .btn-search {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-search:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .certs-table-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    .table {
+        margin: 0;
+    }
+
+    .table thead {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .table thead th {
+        border: none;
+        padding: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+        background: #f9fafb;
+        transform: scale(1.01);
+    }
+
+    .table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .badge.bg-success {
+        background: #10b981 !important;
+    }
+
+    .badge.bg-primary {
+        background: #3b82f6 !important;
+    }
+
+    .action-btn {
+        padding: 0.4rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 0.3rem;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        text-decoration: none;
+    }
+
+    .action-btn.btn-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+    }
+
+    .action-btn.btn-primary:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        color: white;
+    }
+
+    .action-btn.btn-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+
+    .action-btn.btn-danger:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        color: white;
+    }
+
+    .btn-back {
+        background: #6b7280;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-top: 2rem;
+    }
+
+    .btn-back:hover {
+        background: #4b5563;
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+
+    .stats-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-box {
+        flex: 1;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #667eea;
+        margin: 0;
+    }
+
+    .stat-label {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .stats-row {
+            flex-direction: column;
+        }
+
+        .page-header h2 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="admin-certs-container">
+    <!-- Header -->
+    <div class="page-header">
+        <h2><i class="fas fa-certificate"></i> Certificate Management</h2>
+        <p style="margin: 0.5rem 0 0 0; opacity: 0.95;">Manage and verify issued certificates</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-number">{{ certificates|length }}</div>
+            <div class="stat-label">Total Certificates</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ certificates|length }}</div>
+            <div class="stat-label">Showing</div>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-card">
+        <form method="get" class="row g-3">
+            <div class="col-md-8">
+                <label class="form-label" style="font-weight: 600; color: #374151;">Search Certificates</label>
+                <input type="text" name="search" class="form-control"
+                    placeholder="Search by student name, course, or certificate code..." value="{{ search_query }}">
+            </div>
+            <div class="col-md-4" style="display: flex; align-items: flex-end; gap: 0.5rem;">
+                <button type="submit" class="btn btn-search">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <a href="{% url 'admin_certificates' %}" class="btn btn-secondary"
+                    style="padding: 0.75rem 1.5rem; border-radius: 0.5rem;">
+                    <i class="fas fa-redo"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Certificates Table -->
+    <div class="certs-table-card">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-user"></i> Student</th>
+                        <th><i class="fas fa-book"></i> Course</th>
+                        <th><i class="fas fa-code"></i> Certificate Code</th>
+                        <th><i class="fas fa-calendar"></i> Issue Date</th>
+                        <th><i class="fas fa-check-circle"></i> Status</th>
+                        <th><i class="fas fa-cogs"></i> Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cert in certificates %}
+                    <tr>
+                        <td><strong>{{ cert.user.get_full_name|default:cert.user.username }}</strong></td>
+                        <td>{{ cert.course.title|truncatewords:8 }}</td>
+                        <td>
+                            <span class="badge bg-primary">
+                                <i class="fas fa-barcode"></i> {{ cert.certificate_code }}
+                            </span>
+                        </td>
+                        <td>{{ cert.issue_date|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="badge bg-success">
+                                <i class="fas fa-check-circle"></i> Verified
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'certificate_view' cert.id %}" class="action-btn btn-primary"
+                                target="_blank">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <a href="{% url 'admin_revoke_certificate' cert.id %}" class="action-btn btn-danger">
+                                <i class="fas fa-ban"></i> Revoke
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center" style="padding: 3rem; color: #9ca3af;">
+                            <i class="fas fa-certificate"
+                                style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+                            <strong>No certificates found</strong>
+                            <p style="margin: 0.5rem 0 0 0;">Try adjusting your search query</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <a href="{% url 'admin_dashboard' %}" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+{% endblock %}

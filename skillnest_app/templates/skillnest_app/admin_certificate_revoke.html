@@ -1,0 +1,227 @@
+{% extends 'skillnest_app/base.html' %}
+
+{% block title %}Revoke Certificate - Admin{% endblock %}
+
+{% block content %}
+<style>
+    .revoke-container {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+    }
+
+    .page-header h2 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .warning-card {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .warning-card .warning-icon {
+        color: #f59e0b;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .warning-card h3 {
+        color: #92400e;
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .warning-card p {
+        color: #78350f;
+        margin: 0;
+    }
+
+    .cert-details-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+
+    .cert-details-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .detail-row {
+        display: flex;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: #6b7280;
+        width: 150px;
+        flex-shrink: 0;
+    }
+
+    .detail-value {
+        color: #1f2937;
+        font-weight: 500;
+    }
+
+    .badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-block;
+    }
+
+    .badge.bg-primary {
+        background: #3b82f6;
+        color: white;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn-revoke {
+        flex: 1;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        border: none;
+        padding: 0.875rem 2rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-revoke:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-cancel {
+        flex: 1;
+        background: #6b7280;
+        color: white;
+        padding: 0.875rem 2rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+        background: #4b5563;
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .page-header h2 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="revoke-container">
+    <!-- Header -->
+    <div class="page-header">
+        <h2><i class="fas fa-exclamation-triangle"></i> Revoke Certificate</h2>
+        <p style="margin: 0.5rem 0 0 0; opacity: 0.95;">Confirm certificate revocation</p>
+    </div>
+
+    <!-- Warning -->
+    <div class="warning-card">
+        <div class="warning-icon">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <h3>Warning: This action cannot be undone!</h3>
+        <p>Revoking this certificate will permanently invalidate it. The student will no longer be able to use this
+            certificate for verification purposes.</p>
+    </div>
+
+    <!-- Certificate Details -->
+    <div class="cert-details-card">
+        <div class="cert-details-title">
+            <i class="fas fa-info-circle"></i> Certificate Details
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Student:</div>
+            <div class="detail-value">
+                <strong>{{ certificate.user.get_full_name|default:certificate.user.username }}</strong>
+            </div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Course:</div>
+            <div class="detail-value">{{ certificate.course.title }}</div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Certificate Code:</div>
+            <div class="detail-value">
+                <span class="badge bg-primary">
+                    <i class="fas fa-barcode"></i> {{ certificate.certificate_code }}
+                </span>
+            </div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Issue Date:</div>
+            <div class="detail-value">{{ certificate.issue_date|date:"F d, Y" }}</div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <form method="post">
+        {% csrf_token %}
+        <div class="action-buttons">
+            <button type="submit" class="btn-revoke">
+                <i class="fas fa-ban"></i> Yes, Revoke Certificate
+            </button>
+            <a href="{% url 'admin_certificates' %}" class="btn-cancel">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

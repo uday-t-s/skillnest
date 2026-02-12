@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SkillNest - Free Education & Placement Platform{% endblock %}</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom SkillNest CSS (Merged) -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #7c3aed;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        /* Top Navigation Bar */
+        .top-navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: white;
+            text-decoration: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-brand i {
+            font-size: 1.8rem;
+        }
+
+        .nav-center {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .nav-center a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 0.6rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-center a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 1.2rem;
+            align-items: center;
+        }
+
+        .nav-user {
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .nav-user i {
+            font-size: 1.1rem;
+        }
+
+        .nav-right a {
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-login {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-login:hover {
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .top-navbar {
+                padding: 0.8rem 1rem;
+            }
+
+            .nav-brand {
+                font-size: 1.2rem;
+            }
+
+            .nav-center {
+                display: none;
+            }
+
+            .nav-center.active {
+                display: flex;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                flex-direction: column;
+                padding: 1rem 2rem;
+                gap: 0.5rem;
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            }
+
+            .nav-center.active a {
+                padding: 0.8rem 1rem;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .nav-right {
+                gap: 0.8rem;
+            }
+
+            .nav-user {
+                display: none;
+            }
+        }
+
+        .user-badge i {
+            font-size: 1rem;
+        }
+
+        .btn-login {
+            padding: 0.7rem 1.4rem !important;
+            background: white !important;
+            color: #667eea !important;
+            border: 1.5px solid #667eea !important;
+            border-radius: 6px !important;
+            font-weight: 600 !important;
+            font-size: 0.9rem !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .btn-login:hover {
+            background: #667eea !important;
+            color: white !important;
+        }
+
+        .btn-logout {
+            padding: 0.7rem 1.4rem !important;
+            background: #667eea !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 6px !important;
+            font-weight: 600 !important;
+            font-size: 0.9rem !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .btn-logout:hover {
+            background: #764ba2 !important;
+        }
+
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #667eea;
+            padding: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-wrap: wrap;
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .navbar-brand {
+                order: 1;
+                font-size: 1.3rem;
+            }
+
+            .mobile-toggle {
+                display: block;
+                order: 2;
+            }
+
+            #nav-links {
+                order: 3;
+                width: 100%;
+                display: none !important;
+                flex-direction: column;
+                gap: 0;
+                margin-top: 1rem;
+                padding-top: 1rem;
+                border-top: 1px solid #e2e8f0;
+            }
+
+            #nav-links.active {
+                display: flex !important;
+            }
+
+            .nav-auth {
+                order: 4;
+                width: 100%;
+                margin-top: 0.5rem;
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+
+            .navbar a {
+                width: 100%;
+                padding: 0.7rem;
+            }
+
+            .btn-login,
+            .btn-logout {
+                width: 100% !important;
+                text-align: center !important;
+            }
+
+            .nav-divider {
+                display: none;
+            }
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .hero-section h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .hero-section p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        /* Cards */
+        .card {
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 50px;
+            padding: 10px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-outline-primary {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            border-radius: 50px;
+            padding: 10px 30px;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        /* Progress Bar */
+        .progress {
+            height: 8px;
+            border-radius: 10px;
+            background-color: #e5e7eb;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        /* Badges */
+        .badge {
+            border-radius: 50px;
+            padding: 8px 12px;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1f2937;
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: 60px;
+        }
+
+        .footer h5 {
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .footer a {
+            color: #d1d5db;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: white;
+        }
+
+        /* Messages */
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .alert-danger {
+            background-color: #fee2e2;
+            color: #7f1d1d;
+        }
+
+        .alert-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .alert-info {
+            background-color: #dbeafe;
+            color: #0c2d6b;
+        }
+
+        /* Form */
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            padding: 10px 15px;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+        }
+
+        /* Stats */
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Match Score Badge */
+        .match-score {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+
+            .hero-section p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="top-navbar">
+        <a href="{% url 'home' %}" class="nav-brand">
+            <i class="fas fa-graduation-cap"></i> SkillNest
+        </a>
+
+        <div class="nav-center" id="nav-menu">
+            {% if user.is_authenticated and user.profile.role == 'admin' %}
+            <!-- Admin users see no navigation links -->
+            {% elif user.is_authenticated and user.profile.role == 'teacher' %}
+            <a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a>
+            <a href="{% url 'courses' %}"><i class="fas fa-book"></i> Courses</a>
+            <a href="{% url 'contact' %}"><i class="fas fa-envelope"></i> Contact</a>
+            {% else %}
+            <a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a>
+            <a href="{% url 'courses' %}"><i class="fas fa-book"></i> Courses</a>
+            <a href="{% url 'jobs' %}"><i class="fas fa-briefcase"></i> Jobs</a>
+            <a href="{% url 'teachers' %}"><i class="fas fa-chalkboard-user"></i> Teachers</a>
+            <a href="{% url 'contact' %}"><i class="fas fa-envelope"></i> Contact</a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'skill_gap' %}"><i class="fas fa-chart-line"></i> Career</a>
+            <a href="{% url 'portfolio' user.username %}"><i class="fas fa-briefcase"></i> Portfolio</a>
+            {% endif %}
+            {% endif %}
+        </div>
+
+        <div class="nav-right">
+            {% if user.is_authenticated %}
+            <span class="nav-user">
+                <i class="fas fa-user-circle"></i>
+                {{ user.first_name|default:user.username }}
+            </span>
+            <a href="{% url 'logout' %}" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            {% else %}
+            <a href="{% url 'login' %}" class="btn-login"><i class="fas fa-sign-in-alt"></i> Login</a>
+            {% endif %}
+        </div>
+
+        <button class="mobile-menu-toggle" id="mobile-menu-btn" aria-label="Toggle menu">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    <script>
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const navMenu = document.getElementById('nav-menu');
+
+        if (mobileBtn) {
+            mobileBtn.addEventListener('click', function () {
+                navMenu.classList.toggle('active');
+                this.querySelector('i').classList.toggle('fa-bars');
+                this.querySelector('i').classList.toggle('fa-times');
+            });
+        }
+    </script>
+
+    <!-- Sidebar Menu for additional options -->
+    <div class="side-bar">
+        <div id="close-btn">
+            <i class="fas fa-times"></i>
+        </div>
+
+        <div class="profile">
+            {% if user.is_authenticated %}
+            {% if user.profile.profile_picture %}
+            <img src="{{ user.profile.profile_picture.url }}" class="image" alt="Profile">
+            {% else %}
+            <img src="{% static 'images/pic-1.jpg' %}" class="image" alt="Profile">
+            {% endif %}
+            <h3 class="name">{{ user.first_name|default:user.username }}</h3>
+            <p class="role">{{ user.profile.role|title }}</p>
+            <a href="{% url 'profile' %}" class="btn">View Profile</a>
+            {% else %}
+            <img src="{% static 'images/pic-1.jpg' %}" class="image" alt="Profile">
+            <h3 class="name">Guest</h3>
+            <p class="role">Student</p>
+            <a href="{% url 'login' %}" class="btn">Login</a>
+            {% endif %}
+        </div>
+
+
+        }
+    </div>
+
+    </div> <!-- .side-bar -->
+
+    <script>
+        // Close sidebar when close button clicked
+        (function () {
+            var closeBtn = document.getElementById('close-btn');
+            var sideBar = document.querySelector('.side-bar');
+            if (closeBtn && sideBar) {
+                closeBtn.addEventListener('click', function () {
+                    sideBar.classList.toggle('hidden');
+                });
+            }
+        })();
+    </script>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div style="max-width: 1200px; margin: 1.5rem auto; padding: 0 1.25rem;">
+        {% for message in messages %}
+        {% if message.tags == 'success' %}
+        <div style="background: #d1fae5; color: #065f46; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+            {{ message }}
+        </div>
+        {% elif message.tags == 'error' %}
+        <div style="background: #fee2e2; color: #7f1d1d; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+            {{ message }}
+        </div>
+        {% else %}
+        <div style="background: #dbeafe; color: #0c2d6b; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+            {{ message }}
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content Block -->
+    {% block content %}{% endblock %}
+
+    <!-- Footer (Merged from Original) -->
+    <footer class="footer">
+        &copy; Copyright @ 2025 by <span>SkillNest Team</span> | All rights reserved! | <a
+            href="https://skillnest.local" style="color: #e5e7eb;">Free Education & Placement Platform</a>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{% static 'js/script.js' %}"></script>
+    <script src="{% static 'js/skillnest.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,659 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+{% block title %}Course Students - {{ course.title }} - SkillNest{% endblock %}
+{% block content %}
+<div class="course-students-container">
+    <div class="students-header">
+        <div class="header-content">
+            <h1><i class="fas fa-users"></i> Course Students</h1>
+            <p>{{ course.title }}</p>
+            <div class="course-stats">
+                <span class="stat-item">
+                    <i class="fas fa-user-graduate"></i> {{ enrollments.count }} Students
+                </span>
+                <span class="stat-item">
+                    <i class="fas fa-book"></i> {{ course.lessons.count }} Lessons
+                </span>
+                <span class="stat-item">
+                    <i class="fas fa-clock"></i> {{ course.duration_hours }} Hours
+                </span>
+            </div>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'course_detail' course.id %}" class="btn-secondary">
+                <i class="fas fa-eye"></i> View Course
+            </a>
+            <a href="{% url 'teacher_course_management' %}" class="btn-primary">
+                <i class="fas fa-arrow-left"></i> Back to Courses
+            </a>
+        </div>
+    </div>
+
+    {% if enrollments %}
+        <div class="students-table-container">
+            <div class="table-header">
+                <h2><i class="fas fa-list"></i> Enrolled Students</h2>
+                <div class="table-actions">
+                    <button class="btn-outline" onclick="exportStudents()">
+                        <i class="fas fa-download"></i> Export List
+                    </button>
+                </div>
+            </div>
+
+            <div class="students-table">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Email</th>
+                                <th>Enrollment Date</th>
+                                <th>Progress</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for enrollment in enrollments %}
+                                <tr>
+                                    <td class="student-info">
+                                        <div class="student-avatar">
+                                            {% if enrollment.user.profile.profile_picture %}
+                                                <img src="{{ enrollment.user.profile.profile_picture.url }}" alt="Profile">
+                                            {% else %}
+                                                <div class="avatar-placeholder">
+                                                    {{ enrollment.user.first_name|first|upper }}{{ enrollment.user.last_name|first|upper }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="student-details">
+                                            <div class="student-name">{{ enrollment.user.first_name }} {{ enrollment.user.last_name }}</div>
+                                            <div class="student-username">@{{ enrollment.user.username }}</div>
+                                        </div>
+                                    </td>
+                                    <td>{{ enrollment.user.email }}</td>
+                                    <td>{{ enrollment.enroll_date|date:"M d, Y" }}</td>
+                                    <td>
+                                        <div class="progress-info">
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" style="width: {{ enrollment.progress_percent }}%"></div>
+                                            </div>
+                                            <span class="progress-text">{{ enrollment.progress_percent }}%</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge status-{{ enrollment.status }}">
+                                            {{ enrollment.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="mailto:{{ enrollment.user.email }}" class="btn-icon" title="Send Email">
+                                                <i class="fas fa-envelope"></i>
+                                            </a>
+                                            <button class="btn-icon" title="View Progress" onclick="viewStudentProgress({{ enrollment.id }})">
+                                                <i class="fas fa-chart-line"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Summary -->
+        <div class="progress-summary">
+            <h3><i class="fas fa-chart-pie"></i> Progress Summary</h3>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-number">{{ enrollments|length }}</div>
+                        <div class="summary-label">Total Enrolled</div>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-number">{{ enrollments|length|add:0 }}</div>
+                        <div class="summary-label">Completed</div>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-number">{{ enrollments|length|add:0 }}</div>
+                        <div class="summary-label">In Progress</div>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-number">0%</div>
+                        <div class="summary-label">Avg. Completion</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <h3>No students enrolled yet</h3>
+            <p>Students haven't enrolled in this course yet. Share the course link to attract learners!</p>
+            <div class="empty-actions">
+                <button class="btn-primary" onclick="copyCourseLink()">
+                    <i class="fas fa-copy"></i> Copy Course Link
+                </button>
+                <a href="{% url 'course_detail' course.id %}" class="btn-secondary">
+                    <i class="fas fa-eye"></i> View Course Page
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .course-students-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .students-header {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .header-content h1 {
+        font-size: 2rem;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .header-content h1 i {
+        color: #667eea;
+    }
+
+    .header-content > p {
+        color: #6b7280;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    .course-stats {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #374151;
+        font-weight: 500;
+    }
+
+    .stat-item i {
+        color: #667eea;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary, .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+    .btn-secondary:hover {
+        background: #e5e7eb;
+        transform: translateY(-1px);
+    }
+
+    .students-table-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .table-header {
+        padding: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .table-header h2 {
+        color: #1f2937;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .table-header h2 i {
+        color: #667eea;
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: #667eea;
+        border: 1px solid #667eea;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .btn-outline:hover {
+        background: #667eea;
+        color: white;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .students-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .students-table thead th {
+        background: #f8fafc;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .students-table tbody td {
+        padding: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+
+    .student-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .student-avatar img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .avatar-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .student-details {
+        min-width: 0;
+    }
+
+    .student-name {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.125rem;
+    }
+
+    .student-username {
+        color: #6b7280;
+        font-size: 0.85rem;
+    }
+
+    .progress-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        min-width: 120px;
+    }
+
+    .progress-bar {
+        flex: 1;
+        height: 8px;
+        background: #e5e7eb;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+
+    .progress-text {
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.9rem;
+        min-width: 35px;
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .status-in_progress {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-completed {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-dropped {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        background: white;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .btn-icon:hover {
+        background: #f3f4f6;
+        color: #374151;
+        border-color: #9ca3af;
+    }
+
+    .progress-summary {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .progress-summary h3 {
+        color: #1f2937;
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .progress-summary h3 i {
+        color: #667eea;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .summary-card {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .summary-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .summary-content {
+        flex: 1;
+    }
+
+    .summary-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1f2937;
+        line-height: 1;
+    }
+
+    .summary-label {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+    }
+
+    .empty-state {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 3rem 2rem;
+        text-align: center;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: #d1d5db;
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-state h3 {
+        color: #1f2937;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: #6b7280;
+        margin-bottom: 2rem;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .empty-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+        .course-students-container {
+            padding: 1rem;
+        }
+
+        .students-header {
+            padding: 1.5rem;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .header-actions {
+            justify-content: center;
+        }
+
+        .course-stats {
+            justify-content: center;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .table-actions {
+            align-self: center;
+        }
+
+        .students-table {
+            font-size: 0.9rem;
+        }
+
+        .student-info {
+            flex-direction: column;
+            text-align: center;
+            gap: 0.5rem;
+        }
+
+        .progress-info {
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-buttons {
+            justify-content: center;
+        }
+
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .empty-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+</style>
+
+<script>
+function exportStudents() {
+    // Simple CSV export functionality
+    const csvContent = "data:text/csv;charset=utf-8,"
+        + "Name,Email,Enrollment Date,Progress,Status\n"
+        + Array.from(document.querySelectorAll('tbody tr')).map(row => {
+            const cells = row.querySelectorAll('td');
+            return `"${cells[0].querySelector('.student-name').textContent}","${cells[1].textContent}","${cells[2].textContent}","${cells[3].querySelector('.progress-text').textContent}","${cells[4].querySelector('.status-badge').textContent}"`;
+        }).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "course_students.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function copyCourseLink() {
+    const courseUrl = window.location.origin + "{% url 'course_detail' course.id %}";
+    navigator.clipboard.writeText(courseUrl).then(() => {
+        // Simple feedback
+        const btn = event.target.closest('button');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        btn.style.background = '#10b981';
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.background = '';
+        }, 2000);
+    });
+}
+
+function viewStudentProgress(enrollmentId) {
+    // Placeholder for future progress detail modal
+    alert('Student progress details will be shown here. Enrollment ID: ' + enrollmentId);
+}
+</script>
+{% endblock %}

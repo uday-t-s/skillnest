@@ -1,0 +1,52 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+
+{% block title %}Add Lesson - SkillNest{% endblock %}
+
+{% block content %}
+<div style="padding: 2rem 1rem; background: #f8f9fa; min-height: calc(100vh - 200px);">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <h1 style="color: #333; margin-bottom: 1rem;"><i class="fas fa-plus"></i> Add Lesson</h1>
+        <p style="color: #666; margin-bottom: 2rem;">Course: <strong>{{ course.title }}</strong></p>
+        
+        <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <form method="post">
+                {% csrf_token %}
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-weight: 600; color: #333; margin-bottom: 0.5rem;">Lesson Title *</label>
+                    <input type="text" name="title" required style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem;" placeholder="Enter lesson title">
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-weight: 600; color: #333; margin-bottom: 0.5rem;">Description</label>
+                    <textarea name="description" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; font-family: sans-serif;" placeholder="Optional description of the lesson" rows="3"></textarea>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-weight: 600; color: #333; margin-bottom: 0.5rem;">Video URL (YouTube)</label>
+                    <input type="url" name="video_url" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem;" placeholder="Paste full iframe embed code or embed URL">
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-weight: 600; color: #333; margin-bottom: 0.5rem;">Lesson Content</label>
+                    <textarea name="content" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; font-family: sans-serif;" placeholder="Enter lesson content, notes, or text" rows="5"></textarea>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-weight: 600; color: #333; margin-bottom: 0.5rem;">Duration (minutes)</label>
+                    <input type="number" name="duration_minutes" value="10" min="1" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem;">
+                </div>
+                
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" style="background: #10b981; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                        <i class="fas fa-plus"></i> Add Lesson
+                    </button>
+                    <a href="{% url 'teacher_course_detail' course.id %}" style="background: #f0f4ff; color: #667eea; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600;">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

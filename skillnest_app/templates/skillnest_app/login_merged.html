@@ -1,0 +1,135 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+
+{% block title %}Login - SkillNest{% endblock %}
+
+{% block content %}
+<section class="form-container">
+   <div class="form-box">
+      <h1 class="heading">Welcome Back</h1>
+      <p class="small-text" style="text-align: center; margin-bottom: 1.5rem;">Sign in to your SkillNest account</p>
+
+      {% if form.non_field_errors %}
+         <div class="error-message" style="background: #fee2e2; color: #7f1d1d; padding: 0.8rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+            {% for error in form.non_field_errors %}
+               <p style="margin: 0;">{{ error }}</p>
+            {% endfor %}
+         </div>
+      {% endif %}
+
+      <form method="post" class="login-form">
+         {% csrf_token %}
+
+         {% if messages %}
+            <div style="background: #fee2e2; color: #7f1d1d; padding: 0.8rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+               {% for message in messages %}
+                  <p style="margin: 0;">{{ message }}</p>
+               {% endfor %}
+            </div>
+         {% endif %}
+
+         <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required style="width: 100%; padding: 0.7rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #f8fafc;">
+         </div>
+
+         <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required style="width: 100%; padding: 0.7rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #f8fafc;">
+         </div>
+
+         <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="display: flex; align-items: center; font-weight: normal;">
+               <input type="checkbox" name="remember" style="margin-right: 0.5rem;">
+               Remember me
+            </label>
+            <a href="#" style="color: #2563eb; text-decoration: none; font-size: 0.9rem;">Forgot password?</a>
+         </div>
+
+         <button type="submit" class="btn" style="width: 100%; padding: 0.75rem; background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer;">Login</button>
+      </form>
+
+      <p class="small-text" style="text-align: center; margin-top: 1.5rem;">
+         Don't have an account? <a href="{% url 'signup' %}" style="color: #2563eb; font-weight: 600;">Sign up here</a>
+      </p>
+   </div>
+</section>
+
+<style>
+   .form-container {
+      max-width: 450px;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
+   }
+
+   .form-box {
+      background: white;
+      padding: 2rem;
+      border-radius: 0.75rem;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+   }
+
+   .form-group {
+      margin-bottom: 1.2rem;
+   }
+
+   .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #334155;
+   }
+
+   .form-group input[type="text"],
+   .form-group input[type="email"],
+   .form-group input[type="password"],
+   .form-group select,
+   .form-group textarea {
+      width: 100%;
+      padding: 0.7rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.5rem;
+      background: #f8fafc;
+      font-size: 1rem;
+      transition: all 0.15s;
+      font-family: inherit;
+   }
+
+   .form-group input:focus,
+   .form-group select:focus,
+   .form-group textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      background: white;
+      box-shadow: 0 0 0 2px #bfdbfe;
+   }
+
+   .btn {
+      background: #2563eb;
+      color: white;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: background 0.2s;
+   }
+
+   .btn:hover {
+      background: #1d4ed8;
+   }
+
+   .error {
+      color: #dc2626;
+      font-size: 0.85rem;
+      display: block;
+      margin-top: 0.3rem;
+   }
+
+   .error-message {
+      border-left: 4px solid #dc2626;
+   }
+</style>
+{% endblock %}

@@ -1,0 +1,307 @@
+{% extends 'skillnest_app/base.html' %}
+
+{% block title %}Course Management - Admin{% endblock %}
+
+{% block content %}
+<style>
+    .admin-courses-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .page-header h2 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .search-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+
+    .search-card .form-control {
+        border-radius: 0.5rem;
+        border: 2px solid #e5e7eb;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-card .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+    }
+
+    .btn-search {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-search:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .courses-table-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    .table {
+        margin: 0;
+    }
+
+    .table thead {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .table thead th {
+        border: none;
+        padding: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+        background: #f9fafb;
+        transform: scale(1.01);
+    }
+
+    .table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .badge.bg-primary {
+        background: #3b82f6 !important;
+    }
+
+    .badge.bg-success {
+        background: #10b981 !important;
+    }
+
+    .badge.bg-warning {
+        background: #f59e0b !important;
+        color: white !important;
+    }
+
+    .action-btn {
+        padding: 0.4rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        text-decoration: none;
+    }
+
+    .btn-back {
+        background: #6b7280;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-top: 2rem;
+    }
+
+    .btn-back:hover {
+        background: #4b5563;
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+
+    .stats-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-box {
+        flex: 1;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #667eea;
+        margin: 0;
+    }
+
+    .stat-label {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .stats-row {
+            flex-direction: column;
+        }
+
+        .page-header h2 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="admin-courses-container">
+    <!-- Header -->
+    <div class="page-header">
+        <h2><i class="fas fa-book-open"></i> Course Management</h2>
+        <p style="margin: 0.5rem 0 0 0; opacity: 0.95;">Manage all courses and monitor enrollments</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-number">{{ courses|length }}</div>
+            <div class="stat-label">Total Courses</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ courses|length }}</div>
+            <div class="stat-label">Showing</div>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-card">
+        <form method="get" class="row g-3">
+            <div class="col-md-8">
+                <label class="form-label" style="font-weight: 600; color: #374151;">Search Courses</label>
+                <input type="text" name="search" class="form-control"
+                    placeholder="Search by course title or instructor name..." value="{{ search_query }}">
+            </div>
+            <div class="col-md-4" style="display: flex; align-items: flex-end; gap: 0.5rem;">
+                <button type="submit" class="btn btn-search">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <a href="{% url 'admin_courses' %}" class="btn btn-secondary"
+                    style="padding: 0.75rem 1.5rem; border-radius: 0.5rem;">
+                    <i class="fas fa-redo"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Courses Table -->
+    <div class="courses-table-card">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-book"></i> Course Title</th>
+                        <th><i class="fas fa-user"></i> Instructor</th>
+                        <th><i class="fas fa-layer-group"></i> Category</th>
+                        <th><i class="fas fa-signal"></i> Level</th>
+                        <th><i class="fas fa-users"></i> Enrollments</th>
+                        <th><i class="fas fa-calendar"></i> Created</th>
+                        <th><i class="fas fa-cogs"></i> Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses %}
+                    <tr>
+                        <td><strong>{{ course.title|truncatewords:8 }}</strong></td>
+                        <td>{{ course.instructor.username }}</td>
+                        <td>
+                            <span class="badge bg-primary">{{ course.get_category_display }}</span>
+                        </td>
+                        <td>
+                            {% if course.level == 'beginner' %}
+                            <span class="badge bg-success"><i class="fas fa-seedling"></i> Beginner</span>
+                            {% elif course.level == 'intermediate' %}
+                            <span class="badge bg-warning"><i class="fas fa-chart-line"></i> Intermediate</span>
+                            {% else %}
+                            <span class="badge" style="background: #ef4444; color: white;"><i class="fas fa-crown"></i>
+                                Advanced</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge" style="background: #8b5cf6; color: white;">
+                                <i class="fas fa-user-graduate"></i> {{ course.enrollment_count }}
+                            </span>
+                        </td>
+                        <td>{{ course.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <a href="{% url 'course_detail' course.id %}" class="action-btn btn-info" target="_blank">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <a href="{% url 'admin_delete_course' course.id %}" class="action-btn btn-danger">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center" style="padding: 3rem; color: #9ca3af;">
+                            <i class="fas fa-book-open"
+                                style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+                            <strong>No courses found</strong>
+                            <p style="margin: 0.5rem 0 0 0;">Try adjusting your search query</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <a href="{% url 'admin_dashboard' %}" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+{% endblock %}

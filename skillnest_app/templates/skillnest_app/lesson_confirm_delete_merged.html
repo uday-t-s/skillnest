@@ -1,0 +1,212 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+{% block title %}Delete Lesson - SkillNest{% endblock %}
+{% block content %}
+<div class="delete-confirmation-container">
+    <div class="confirmation-card">
+        <div class="warning-header">
+            <div class="warning-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h1>Delete Lesson</h1>
+            <p class="warning-text">This action cannot be undone</p>
+        </div>
+
+        <div class="lesson-details">
+            <h2>{{ lesson.title }}</h2>
+            <div class="lesson-info">
+                <span class="info-item">
+                    <i class="fas fa-book"></i> Course: {{ lesson.course.title }}
+                </span>
+                <span class="info-item">
+                    <i class="fas fa-clock"></i> Duration: {{ lesson.duration_minutes }} minutes
+                </span>
+                {% if lesson.video_file %}
+                    <span class="info-item">
+                        <i class="fas fa-video"></i> Has uploaded video
+                    </span>
+                {% elif lesson.video_url %}
+                    <span class="info-item">
+                        <i class="fas fa-link"></i> Has video URL
+                    </span>
+                {% else %}
+                    <span class="info-item">
+                        <i class="fas fa-video-slash"></i> No video content
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="confirmation-message">
+            <p>Are you sure you want to permanently delete this lesson? This will remove all associated content and cannot be recovered.</p>
+        </div>
+
+        <div class="action-buttons">
+            <a href="{% url 'teacher_course_management' %}" class="btn-secondary">
+                <i class="fas fa-arrow-left"></i> Cancel
+            </a>
+            <form method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-danger">
+                    <i class="fas fa-trash"></i> Delete Lesson
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .delete-confirmation-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .confirmation-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+    }
+
+    .warning-header {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        padding: 2rem;
+        text-align: center;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .warning-icon {
+        font-size: 3rem;
+        color: #dc2626;
+        margin-bottom: 1rem;
+    }
+
+    .warning-header h1 {
+        color: #dc2626;
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .warning-text {
+        color: #991b1b;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .lesson-details {
+        padding: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .lesson-details h2 {
+        color: #1f2937;
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+    }
+
+    .lesson-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: #6b7280;
+        font-size: 0.95rem;
+    }
+
+    .info-item i {
+        color: #667eea;
+        width: 16px;
+    }
+
+    .confirmation-message {
+        padding: 2rem;
+        background: #fef3c7;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .confirmation-message p {
+        color: #92400e;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    .action-buttons {
+        padding: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .btn-secondary, .btn-danger {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+    .btn-secondary:hover {
+        background: #e5e7eb;
+        transform: translateY(-1px);
+    }
+
+    .btn-danger {
+        background: #dc2626;
+        color: white;
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    .btn-danger:hover {
+        background: #b91c1c;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+    }
+
+    @media (max-width: 768px) {
+        .delete-confirmation-container {
+            padding: 1rem;
+        }
+
+        .warning-header, .lesson-details, .confirmation-message, .action-buttons {
+            padding: 1.5rem;
+        }
+
+        .warning-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .lesson-details h2 {
+            font-size: 1.2rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-secondary, .btn-danger {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}

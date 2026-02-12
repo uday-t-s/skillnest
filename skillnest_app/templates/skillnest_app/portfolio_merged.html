@@ -1,0 +1,896 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+
+{% block title %}Portfolio - {{ portfolio_user.get_full_name|default:portfolio_user.username }} - SkillNest{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary: #2563eb;
+        --primary-dark: #1e40af;
+        --secondary: #7c3aed;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --light: #f3f4f6;
+        --dark: #1f2937;
+        --border: #e5e7eb;
+    }
+
+    .portfolio-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    /* Hero Section */
+    .portfolio-hero {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
+        padding: 3rem 2rem;
+        border-radius: 12px;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .portfolio-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 500px;
+        height: 500px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .hero-image {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 4px solid white;
+        object-fit: cover;
+        flex-shrink: 0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .hero-info h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .hero-info p {
+        font-size: 1.1rem;
+        margin: 0.5rem 0;
+        opacity: 0.9;
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .hero-actions a, .hero-actions button {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        border: 2px solid white;
+        background: transparent;
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .hero-actions a:hover, .hero-actions button:hover {
+        background: white;
+        color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    /* Stats Section */
+    .stats-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--dark);
+        display: block;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+
+    /* Social Links */
+    .social-links-section {
+        margin-bottom: 3rem;
+    }
+
+    .social-links {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .social-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        text-decoration: none;
+        color: var(--dark);
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .social-link:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    .social-link i {
+        font-size: 1.2rem;
+    }
+
+    /* Section Headers */
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--border);
+    }
+
+    .section-header h2 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .section-header .btn {
+        padding: 0.5rem 1rem;
+        background: var(--primary);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .section-header .btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    /* Skills Grid */
+    .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .skill-badge {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .skill-badge:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+    }
+
+    /* Projects Grid */
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .project-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .project-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .project-image {
+        width: 100%;
+        height: 200px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 3rem;
+        overflow: hidden;
+    }
+
+    .project-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .project-body {
+        padding: 1.5rem;
+    }
+
+    .project-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .project-description {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin: 0 0 1rem 0;
+        line-height: 1.5;
+    }
+
+    .project-tech {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .tech-badge {
+        background: var(--light);
+        color: var(--primary);
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .project-links {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .project-link {
+        flex: 1;
+        padding: 0.75rem;
+        background: var(--light);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .project-link:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    /* Timeline */
+    .timeline {
+        position: relative;
+        padding: 0;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-left: 2rem;
+        padding-bottom: 2rem;
+        border-left: 2px solid var(--border);
+    }
+
+    .timeline-item:last-child {
+        border-left: none;
+        padding-bottom: 0;
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: -0.5rem;
+        top: 0;
+        width: 1rem;
+        height: 1rem;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border: 3px solid white;
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px var(--primary);
+    }
+
+    .timeline-content {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .timeline-content:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        transform: translateX(4px);
+    }
+
+    .timeline-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 0.25rem 0;
+    }
+
+    .timeline-subtitle {
+        color: var(--primary);
+        font-weight: 600;
+        margin: 0 0 0.75rem 0;
+    }
+
+    /* Certificates Grid */
+    .certificates-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .certificate-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .certificate-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .certificate-icon {
+        font-size: 3rem;
+        color: var(--warning);
+        margin-bottom: 1rem;
+    }
+
+    .certificate-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .certificate-btn {
+        display: inline-block;
+        margin-top: 1rem;
+        padding: 0.75rem 1.5rem;
+        background: var(--primary);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .certificate-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    /* Courses Grid */
+    .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .course-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .course-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .course-header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 1.5rem;
+        min-height: 100px;
+        display: flex;
+        align-items: flex-end;
+    }
+
+    .course-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .course-body {
+        padding: 1.5rem;
+    }
+
+    .course-button {
+        display: block;
+        width: 100%;
+        padding: 0.75rem;
+        margin-top: 1rem;
+        background: var(--primary);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .course-button:hover {
+        background: var(--primary-dark);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #6b7280;
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        color: var(--border);
+        margin-bottom: 1rem;
+    }
+
+    .empty-action {
+        margin-top: 1rem;
+    }
+
+    .empty-action a {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: var(--primary);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .empty-action a:hover {
+        background: var(--primary-dark);
+    }
+
+    .btn-small {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit {
+        background: var(--primary);
+        color: white;
+        text-decoration: none;
+        margin-right: 0.25rem;
+    }
+
+    .btn-delete {
+        background: var(--danger);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-edit:hover {
+        background: var(--primary-dark);
+    }
+
+    .btn-delete:hover {
+        background: #dc2626;
+    }
+
+    .project-actions, .timeline-actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+        margin-top: 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-content {
+            gap: 1rem;
+        }
+
+        .hero-info h1 {
+            font-size: 1.75rem;
+        }
+
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .skills-grid {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        }
+
+        .projects-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .courses-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="portfolio-container">
+    <!-- Hero Section -->
+    <div class="portfolio-hero">
+        <div class="hero-content">
+            {% if profile.profile_picture %}
+                <img src="{{ profile.profile_picture.url }}" alt="{{ portfolio_user.username }}" class="hero-image">
+            {% else %}
+                <div class="hero-image" style="background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-user" style="font-size: 3rem;"></i>
+                </div>
+            {% endif %}
+            
+            <div class="hero-info">
+                <h1>{{ portfolio_user.get_full_name|default:portfolio_user.username }}</h1>
+                <p>@{{ portfolio_user.username }}</p>
+                {% if profile.bio %}
+                    <p>{{ profile.bio }}</p>
+                {% endif %}
+                <div class="hero-actions">
+                    {% if request.user == portfolio_user %}
+                        <a href="{% url 'edit_profile' %}"><i class="fas fa-edit"></i> Edit Profile</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-section">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-book"></i></div>
+            <span class="stat-number">{{ total_courses }}</span>
+            <span class="stat-label">Courses Enrolled</span>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-graduation-cap"></i></div>
+            <span class="stat-number">{{ certificates.count }}</span>
+            <span class="stat-label">Certificates Earned</span>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-star"></i></div>
+            <span class="stat-number">{{ skills.count }}</span>
+            <span class="stat-label">Skills Acquired</span>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <span class="stat-number">{{ in_progress }}</span>
+            <span class="stat-label">In Progress</span>
+        </div>
+    </div>
+
+    <!-- Social Links -->
+    {% if social_links %}
+    <div class="social-links-section">
+        <div class="section-header">
+            <h2><i class="fas fa-link"></i> Connect</h2>
+            {% if request.user == portfolio_user %}
+                <a href="{% url 'add_social_link' %}" class="btn"><i class="fas fa-plus"></i> Add Link</a>
+            {% endif %}
+        </div>
+        <div class="social-links">
+            {% for link in social_links %}
+                <a href="{{ link.url }}" target="_blank" class="social-link">
+                    {% if link.platform == 'linkedin' %}
+                        <i class="fab fa-linkedin"></i>
+                    {% elif link.platform == 'github' %}
+                        <i class="fab fa-github"></i>
+                    {% elif link.platform == 'twitter' %}
+                        <i class="fab fa-twitter"></i>
+                    {% elif link.platform == 'instagram' %}
+                        <i class="fab fa-instagram"></i>
+                    {% else %}
+                        <i class="fas fa-external-link-alt"></i>
+                    {% endif %}
+                    {{ link.get_platform_display }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% elif request.user == portfolio_user %}
+    <div class="empty-state">
+        <div class="empty-icon"><i class="fas fa-link"></i></div>
+        <p>No social links yet</p>
+        <div class="empty-action">
+            <a href="{% url 'add_social_link' %}"><i class="fas fa-plus"></i> Add Social Links</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Skills Section -->
+    {% if skills %}
+    <div class="skills-section" style="margin-bottom: 3rem;">
+        <div class="section-header">
+            <h2><i class="fas fa-lightbulb"></i> Skills ({{ skills.count }})</h2>
+        </div>
+        <div class="skills-grid">
+            {% for skill in skills %}
+                <div class="skill-badge">
+                    {{ skill.skill.skill_name }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Projects Section -->
+    <div class="projects-section" style="margin-bottom: 3rem;">
+        <div class="section-header">
+            <h2><i class="fas fa-rocket"></i> Projects ({{ projects.count }})</h2>
+            {% if request.user == portfolio_user %}
+                <a href="{% url 'add_project' %}" class="btn"><i class="fas fa-plus"></i> Add Project</a>
+            {% endif %}
+        </div>
+        
+        {% if projects %}
+            <div class="projects-grid">
+                {% for project in projects %}
+                    <div class="project-card">
+                        <div class="project-image">
+                            {% if project.image %}
+                                <img src="{{ project.image.url }}" alt="{{ project.title }}">
+                            {% else %}
+                                <i class="fas fa-project-diagram"></i>
+                            {% endif %}
+                        </div>
+                        <div class="project-body">
+                            <h3 class="project-title">{{ project.title }}</h3>
+                            <p class="project-description">{{ project.short_description|default:project.description|truncatewords:15 }}</p>
+                            
+                            {% if project.technologies.all %}
+                                <div class="project-tech">
+                                    {% for tech in project.technologies.all|slice:":5" %}
+                                        <span class="tech-badge">{{ tech.skill_name }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            <div class="project-links">
+                                {% if project.live_url %}
+                                    <a href="{{ project.live_url }}" target="_blank" class="project-link">
+                                        <i class="fas fa-globe"></i> Live
+                                    </a>
+                                {% endif %}
+                                {% if project.github_url %}
+                                    <a href="{{ project.github_url }}" target="_blank" class="project-link">
+                                        <i class="fab fa-github"></i> Code
+                                    </a>
+                                {% endif %}
+                            </div>
+                            
+                            {% if request.user == portfolio_user %}
+                                <div class="project-actions">
+                                    <a href="{% url 'edit_project' project.id %}" class="btn-small btn-edit">Edit</a>
+                                    <a href="{% url 'delete_project' project.id %}" class="btn-small btn-delete">Delete</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% elif request.user == portfolio_user %}
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fas fa-project-diagram"></i></div>
+                <p>No projects yet</p>
+                <div class="empty-action">
+                    <a href="{% url 'add_project' %}"><i class="fas fa-plus"></i> Add Project</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Education Section -->
+    <div class="education-section" style="margin-bottom: 3rem;">
+        <div class="section-header">
+            <h2><i class="fas fa-school"></i> Education ({{ education.count }})</h2>
+            {% if request.user == portfolio_user %}
+                <a href="{% url 'add_education' %}" class="btn"><i class="fas fa-plus"></i> Add Education</a>
+            {% endif %}
+        </div>
+        
+        {% if education %}
+            <div class="timeline">
+                {% for edu in education %}
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h3 class="timeline-title">{{ edu.degree }}</h3>
+                            <p class="timeline-subtitle">{{ edu.school_name }}</p>
+                            <p style="color: #6b7280; font-size: 0.9rem; line-height: 1.6;">
+                                {{ edu.field_of_study }}
+                                {% if edu.grade %}
+                                    <br><strong>Grade:</strong> {{ edu.grade }}
+                                {% endif %}
+                                {% if edu.activities %}
+                                    <br><strong>Activities:</strong> {{ edu.activities }}
+                                {% endif %}
+                            </p>
+                            
+                            <p style="font-size: 0.85rem; color: #9ca3af; margin-top: 0.75rem;">
+                                <i class="fas fa-calendar"></i>
+                                {% if edu.is_current %}
+                                    {{ edu.start_date|date:"M Y" }} - Present
+                                {% else %}
+                                    {{ edu.start_date|date:"M Y" }} - {{ edu.end_date|date:"M Y" }}
+                                {% endif %}
+                            </p>
+                            
+                            {% if request.user == portfolio_user %}
+                                <div class="timeline-actions">
+                                    <a href="{% url 'edit_education' edu.id %}" class="btn-small btn-edit">Edit</a>
+                                    <a href="{% url 'delete_education' edu.id %}" class="btn-small btn-delete">Delete</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% elif request.user == portfolio_user %}
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fas fa-school"></i></div>
+                <p>No education yet</p>
+                <div class="empty-action">
+                    <a href="{% url 'add_education' %}"><i class="fas fa-plus"></i> Add Education</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Certificates Section -->
+    {% if certificates %}
+    <div class="certificates-section" style="margin-bottom: 3rem;">
+        <div class="section-header">
+            <h2><i class="fas fa-award"></i> Certificates ({{ certificates.count }})</h2>
+        </div>
+        <div class="certificates-grid">
+            {% for cert in certificates %}
+                <div class="certificate-card">
+                    <div class="certificate-icon"><i class="fas fa-certificate"></i></div>
+                    <h3 class="certificate-title">{{ cert.course.title }}</h3>
+                    <p style="color: #6b7280; font-size: 0.9rem; margin: 0.5rem 0;">
+                        <strong>Instructor:</strong> {{ cert.course.instructor.get_full_name|default:cert.course.instructor.username }}
+                    </p>
+                    <div style="font-family: monospace; background: var(--light); padding: 0.5rem; border-radius: 4px; margin: 1rem 0; font-size: 0.85rem; color: var(--primary); font-weight: 600;">
+                        ID: {{ cert.certificate_code }}
+                    </div>
+                    <p style="color: #6b7280; font-size: 0.9rem; margin: 0;">
+                        <i class="fas fa-calendar"></i> {{ cert.issue_date|date:"M d, Y" }}
+                    </p>
+                    <a href="{% url 'certificate_view' cert.id %}" class="certificate-btn">
+                        <i class="fas fa-eye"></i> View & Share
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Completed Courses Section -->
+    {% if completed_courses %}
+    <div class="courses-section" style="margin-bottom: 3rem;">
+        <div class="section-header">
+            <h2><i class="fas fa-book-reader"></i> Completed Courses ({{ completed_courses.count }})</h2>
+        </div>
+        <div class="courses-grid">
+            {% for course in completed_courses %}
+                <div class="course-card">
+                    <div class="course-header">
+                        <h3 class="course-title">{{ course.title }}</h3>
+                    </div>
+                    <div class="course-body">
+                        <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 0.75rem;">
+                            <i class="fas fa-user-tie"></i> {{ course.instructor.get_full_name|default:course.instructor.username }}
+                        </p>
+                        <p style="color: #6b7280; font-size: 0.9rem;">{{ course.description|truncatewords:15 }}</p>
+                        <a href="{% url 'course_detail' course.id %}" class="course-button">
+                            <i class="fas fa-arrow-right"></i> View Course
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

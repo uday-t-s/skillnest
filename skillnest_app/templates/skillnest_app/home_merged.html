@@ -1,0 +1,94 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+
+{% block title %}Home - SkillNest{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="sn-hero">
+   <div class="sn-hero-inner">
+      <div class="sn-hero-text">
+         <p class="sn-hero-eyebrow">Free Learning • Real Jobs</p>
+         <h1>Learn skills that get you hired.</h1>
+         <p class="sn-hero-subtitle">
+            SkillNest connects free, high-quality courses with placement support so you can
+            move from "just learning" to "job-ready".
+         </p>
+         <div class="sn-hero-actions">
+            <a href="{% url 'courses' %}" class="btn">Browse Courses</a>
+            <a href="{% url 'jobs' %}" class="option-btn">View Placements</a>
+         </div>
+         <div class="sn-hero-stats">
+            <div>
+               <strong>120+</strong>
+               <span>Free courses</span>
+            </div>
+            <div>
+               <strong>300+</strong>
+               <span>Students placed</span>
+            </div>
+            <div>
+               <strong>20+</strong>
+               <span>Expert mentors</span>
+            </div>
+         </div>
+      </div>
+      <div class="sn-hero-card">
+         <h3>Next step for you</h3>
+         <p class="small-text">Complete one project-based course to unlock your first portfolio badge.</p>
+         <ul class="sn-hero-checklist small-text">
+            <li><i class="fas fa-check-circle"></i> Web Development basics</li>
+            <li><i class="fas fa-check-circle"></i> Upload your first project</li>
+            <li><i class="fas fa-check-circle"></i> Apply for SkillNest partner jobs</li>
+         </ul>
+      </div>
+   </div>
+</section>
+
+<!-- Trending Courses -->
+<section class="courses trending-section">
+   <div class="sn-section-header">
+      <div>
+         <p class="sn-section-eyebrow">Trending now</p>
+         <h2 class="heading">Trending Courses on SkillNest</h2>
+         <p class="small-text">
+            Short, practical tracks picked from what students are actually completing this week.
+         </p>
+      </div>
+      <a href="{% url 'courses' %}" class="inline-option-btn">View all courses</a>
+   </div>
+
+   <div class="box-container">
+      {% for course in trending_courses %}
+         <div class="box sn-course-card">
+            <div class="tutor sn-course-meta">
+               {% if course.tutor.profile.profile_picture %}
+                  <img src="{{ course.tutor.profile.profile_picture.url }}" alt="{{ course.tutor.first_name }}">
+               {% else %}
+                  <img src="{% static 'images/pic-2.jpg' %}" alt="{{ course.tutor.first_name }}">
+               {% endif %}
+               <div class="info">
+                  <h3>{{ course.tutor.first_name }} {{ course.tutor.last_name }}</h3>
+                  <span>{{ course.category }} · Beginner · {{ course.lesson_set.count }} videos</span>
+               </div>
+            </div>
+            <div class="thumb sn-course-thumb">
+               <img src="{% static 'images/thumb-1.png' %}" alt="">
+            </div>
+            <h3 class="title sn-course-title">{{ course.title }}</h3>
+            <p class="small-text sn-course-desc">
+               {{ course.description|truncatewords:15 }}
+            </p>
+            <div class="sn-course-footer">
+               <span class="sn-pill">4.7 ★ rating</span>
+               <a href="{% url 'course_detail' course.id %}" class="inline-btn">View Playlist</a>
+            </div>
+         </div>
+      {% empty %}
+         <div class="box">
+            <p class="small-text">No courses available yet. Check back soon!</p>
+         </div>
+      {% endfor %}
+   </div>
+</section>
+{% endblock %}

@@ -1,0 +1,648 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+{% load youtube_filters %}
+
+{% block title %}{{ course.title }} - SkillNest{% endblock %}
+
+{% block content %}
+<div class="course-detail-container">
+    <!-- Course Header -->
+    <div class="course-header">
+        <div class="course-info">
+            <div class="course-meta">
+                <span class="category-badge">{{ course.category|default:"Uncategorized" }}</span>
+                <span class="duration-badge">
+                    <i class="fas fa-clock"></i> {{ course.duration_hours }} hours
+                </span>
+                <span class="lessons-badge">
+                    <i class="fas fa-book"></i> {{ course.lessons.count }} lessons
+                </span>
+            </div>
+            <h1 class="course-title">{{ course.title }}</h1>
+            <p class="course-description">{{ course.description }}</p>
+
+            <!-- Instructor Info -->
+            <div class="instructor-info">
+                {% if course.instructor.profile.profile_picture %}
+                    <img src="{{ course.instructor.profile.profile_picture.url }}" alt="Instructor" class="instructor-avatar">
+                {% else %}
+                    <img src="{% static 'images/pic-2.jpg' %}" alt="Instructor" class="instructor-avatar">
+                {% endif %}
+                <div class="instructor-details">
+                    <h3 class="instructor-name">{{ course.instructor.first_name }} {{ course.instructor.last_name }}</h3>
+                    <p class="course-updated">Updated {{ course.updated_at|date:"M d, Y" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Thumbnail -->
+        <div class="course-thumbnail">
+            {% if course.cover_image %}
+                <img src="{{ course.cover_image.url }}" alt="{{ course.title }}" class="thumbnail-image">
+            {% else %}
+                <img src="{% static 'images/thumb-1.png' %}" alt="{{ course.title }}" class="thumbnail-image">
+            {% endif %}
+            <div class="thumbnail-overlay">
+                <span class="video-count">{{ course.lessons.count }} Videos</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enrollment Section -->
+    <div class="enrollment-section">
+        {% if user.is_authenticated %}
+            <form method="post" class="enrollment-form">
+                {% csrf_token %}
+                {% if is_enrolled %}
+                    <div class="enrollment-status enrolled">
+                        <i class="fas fa-check-circle"></i>
+                        <span>You are enrolled in this course</span>
+                    </div>
+                {% else %}
+                    <button type="submit" name="enroll" class="btn-enroll">
+                        <i class="fas fa-graduation-cap"></i>
+                        Enroll in Course
+                    </button>
+                {% endif %}
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn-enroll">
+                <i class="fas fa-sign-in-alt"></i>
+                Login to Enroll
+            </a>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+            <form method="post" class="save-form">
+                {% csrf_token %}
+                <button type="submit" name="save_playlist" class="btn-save">
+                    <i class="far fa-bookmark"></i>
+                    <span>{% if is_saved %}Saved{% else %}Save Course{% endif %}</span>
+                </button>
+            </form>
+        {% endif %}
+    </div>
+
+    <!-- Course Content -->
+    <div class="course-content">
+        <div class="content-tabs">
+            <button class="tab-btn active" data-tab="overview">Overview</button>
+            <button class="tab-btn" data-tab="curriculum">Curriculum</button>
+            {% if is_enrolled %}
+                <button class="tab-btn" data-tab="progress">Progress</button>
+            {% endif %}
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <div class="overview-section">
+                <h2>About This Course</h2>
+                <p>{{ course.description }}</p>
+
+                <div class="course-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-users"></i>
+                        <span>{{ course.enrollments.count }} Students</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-star"></i>
+                        <span>4.8 Rating</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-language"></i>
+                        <span>English</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Curriculum Tab -->
+        <div id="curriculum" class="tab-content">
+            <div class="curriculum-section">
+                <h2>Course Curriculum</h2>
+                
+                <div class="lessons-list">
+                    {% for lesson in course.lessons.all %}
+                        <div id="lesson-{{ lesson.id }}" class="lesson-item">
+                            <div class="lesson-header">
+                                <div class="lesson-info">
+                                    <h4 class="lesson-title">{{ lesson.title }}</h4>
+                                    <span class="lesson-duration">{{ lesson.duration_minutes }} min</span>
+                                </div>
+                                {% if is_enrolled %}
+                                    <a href="{% url 'watch_lesson' course.id lesson.id %}" class="btn-watch">
+                                        <i class="fas fa-play"></i>
+                                        Watch
+                                    </a>
+                                {% else %}
+                                    <span class="lesson-locked">
+                                        <i class="fas fa-lock"></i>
+                                        Enroll to Watch
+                                    </span>
+                                {% endif %}
+                            </div>
+                            {% if lesson.description %}
+                                <p class="lesson-description">{{ lesson.description }}</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        {% if is_enrolled %}
+            <!-- Progress Tab -->
+            <div id="progress" class="tab-content">
+                <div class="progress-section">
+                    <h2>Your Progress</h2>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ progress_percentage }}%"></div>
+                    </div>
+                    <p class="progress-text">{{ completed_lessons }} of {{ total_lessons }} lessons completed</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Tab Switching Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons and contents
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // Add active class to clicked button and corresponding content
+            button.classList.add('active');
+            const tabId = button.getAttribute('data-tab');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+});
+</script>
+
+<style>
+/* Course Detail Container */
+.course-detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Course Header */
+.course-header {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 3rem;
+    margin-bottom: 2rem;
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.course-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.course-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.category-badge, .duration-badge, .lessons-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.category-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.duration-badge, .lessons-badge {
+    background: #f0f4ff;
+    color: #667eea;
+}
+
+.course-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.course-description {
+    font-size: 1.125rem;
+    color: #4a5568;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.instructor-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 12px;
+}
+
+.instructor-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.instructor-details h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.course-updated {
+    margin: 0.25rem 0 0 0;
+    font-size: 0.875rem;
+    color: #718096;
+}
+
+.course-thumbnail {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.thumbnail-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.thumbnail-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    padding: 2rem 1.5rem 1.5rem;
+    color: white;
+}
+
+.video-count {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+/* Enrollment Section */
+.enrollment-section {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+}
+
+.btn-enroll, .btn-save {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-enroll {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-enroll:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.btn-save {
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+}
+
+.btn-save:hover {
+    background: #667eea;
+    color: white;
+}
+
+.enrollment-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: #d1fae5;
+    color: #065f46;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+/* Course Content Tabs */
+.course-content {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.content-tabs {
+    display: flex;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 1.5rem 2rem;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #718096;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.tab-btn.active {
+    color: #667eea;
+    background: white;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #667eea;
+}
+
+.tab-content {
+    display: none;
+    padding: 2rem;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Overview Section */
+.overview-section h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 1rem;
+}
+
+.overview-section p {
+    font-size: 1.125rem;
+    color: #4a5568;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+}
+
+.course-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.stat-item i {
+    color: #667eea;
+    font-size: 1.25rem;
+}
+
+/* Curriculum Section */
+.curriculum-section h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 2rem;
+}
+
+.lessons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.lesson-item {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.lesson-item:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border-color: #cbd5e1;
+}
+
+.lesson-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.lesson-info {
+    flex: 1;
+}
+
+.lesson-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1a202c;
+    margin: 0 0 0.5rem 0;
+}
+
+.lesson-duration {
+    font-size: 0.875rem;
+    color: #718096;
+    font-weight: 500;
+}
+
+.btn-watch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #667eea;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-watch:hover {
+    background: #5a67d8;
+    transform: translateY(-1px);
+}
+
+.lesson-locked {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #f7fafc;
+    color: #a0aec0;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.lesson-description {
+    color: #4a5568;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Progress Section */
+.progress-section h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 2rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 12px;
+    background: #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 6px;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 1rem;
+    color: #4a5568;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .course-header {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .course-title {
+        font-size: 2rem;
+    }
+
+    .thumbnail-image {
+        height: 200px;
+    }
+}
+
+@media (max-width: 768px) {
+    .course-detail-container {
+        padding: 1rem;
+    }
+
+    .course-header {
+        padding: 1.5rem;
+    }
+
+    .course-title {
+        font-size: 1.75rem;
+    }
+
+    .enrollment-section {
+        flex-direction: column;
+    }
+
+    .btn-enroll, .btn-save {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .content-tabs {
+        flex-direction: column;
+    }
+
+    .tab-btn {
+        padding: 1rem;
+    }
+
+    .tab-content {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .course-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .category-badge, .duration-badge, .lessons-badge {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .instructor-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+    }
+
+    .course-stats {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+{% endblock %}

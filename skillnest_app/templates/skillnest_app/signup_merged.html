@@ -1,0 +1,172 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+
+{% block title %}Sign Up - SkillNest{% endblock %}
+
+{% block content %}
+<section class="form-container">
+   <div class="form-box">
+      <h1 class="heading">Create Your Account</h1>
+      <p class="small-text" style="text-align: center; margin-bottom: 1.5rem;">Join SkillNest and start learning today
+      </p>
+
+      {% if form.non_field_errors %}
+      <div class="error-message">
+         {% for error in form.non_field_errors %}
+         <p>{{ error }}</p>
+         {% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="post" class="signup-form">
+         {% csrf_token %}
+
+         {% if messages %}
+         <div style="background: #fee2e2; color: #7f1d1d; padding: 0.8rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+            {% for message in messages %}
+            <p style="margin: 0;">{{ message }}</p>
+            {% endfor %}
+         </div>
+         {% endif %}
+
+         <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Choose a username" required
+               style="width: 100%; padding: 0.7rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #f8fafc; box-sizing: border-box;">
+         </div>
+
+         <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="your@email.com" required
+               style="width: 100%; padding: 0.7rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #f8fafc; box-sizing: border-box;">
+         </div>
+
+         <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter a strong password" required
+               style="width: 100%; padding: 0.7rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #f8fafc; box-sizing: border-box;">
+         </div>
+
+         <div class="form-group">
+            <label for="password_confirm">Confirm Password</label>
+            <input type="password" id="password_confirm" name="password_confirm" placeholder="Confirm your password"
+               required
+               style="width: 100%; padding: 0.7rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #f8fafc; box-sizing: border-box;">
+         </div>
+
+         <div class="form-group">
+            <label for="role">I am a:</label>
+            <select id="role" name="role" required
+               style="width: 100%; padding: 0.7rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #f8fafc; box-sizing: border-box;">
+               <option value="">-- Select a role --</option>
+               {% for role_code, role_name in roles %}
+               <option value="{{ role_code }}">{{ role_name }}</option>
+               {% endfor %}
+            </select>
+            <small style="display: block; color: #64748b; margin-top: 0.3rem;">
+               Teachers can create and sell courses. Students learn and earn certificates.
+            </small>
+         </div>
+
+         <div class="form-group">
+            <label style="display: flex; align-items: center; font-weight: normal;">
+               <input type="checkbox" name="agree_terms" required style="margin-right: 0.5rem;">
+               I agree to the Terms of Service and Privacy Policy
+            </label>
+         </div>
+
+         <button type="submit" class="btn"
+            style="width: 100%; padding: 0.75rem; background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer;">Create
+            Account</button>
+      </form>
+
+      <p class="small-text" style="text-align: center; margin-top: 1.5rem;">
+         Already have an account? <a href="{% url 'login' %}" style="color: #2563eb; font-weight: 600;">Login here</a>
+      </p>
+   </div>
+</section>
+
+<style>
+   .form-container {
+      max-width: 500px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+   }
+
+   .form-box {
+      background: white;
+      padding: 2rem;
+      border-radius: 0.75rem;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+   }
+
+   .form-group {
+      margin-bottom: 1.2rem;
+   }
+
+   .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #334155;
+   }
+
+   .form-group input[type="text"],
+   .form-group input[type="email"],
+   .form-group input[type="password"],
+   .form-group select,
+   .form-group textarea {
+      width: 100%;
+      padding: 0.7rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.5rem;
+      background: #f8fafc;
+      font-size: 1rem;
+      transition: all 0.15s;
+      font-family: inherit;
+      box-sizing: border-box;
+   }
+
+   .form-group input:focus,
+   .form-group select:focus,
+   .form-group textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      background: white;
+      box-shadow: 0 0 0 2px #bfdbfe;
+   }
+
+   .btn {
+      background: #2563eb;
+      color: white;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: background 0.2s;
+   }
+
+   .btn:hover {
+      background: #1d4ed8;
+   }
+
+   .error {
+      color: #dc2626;
+      font-size: 0.85rem;
+      display: block;
+      margin-top: 0.3rem;
+   }
+
+   .error-message {
+      background: #fee2e2;
+      color: #7f1d1d;
+      padding: 0.8rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid #dc2626;
+   }
+</style>
+{% endblock %}

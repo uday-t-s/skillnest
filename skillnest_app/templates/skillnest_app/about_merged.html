@@ -1,0 +1,88 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+
+{% block title %}About Us - SkillNest{% endblock %}
+
+{% block content %}
+<section class="about">
+   <div class="row">
+      <div class="image">
+         <img src="{% static 'images/about-img.svg' %}" alt="About SkillNest">
+      </div>
+      <div class="content">
+         <h3>Why choose us?</h3>
+         <p>SkillNest is a free education and placement platform designed to help aspiring tech professionals gain job-ready skills through high-quality courses and placement support. We believe in accessible education and real career advancement.</p>
+         <a href="{% url 'courses' %}" class="inline-btn">Our Courses</a>
+      </div>
+   </div>
+
+   <div class="box-container">
+      <div class="box">
+         <i class="fas fa-graduation-cap"></i>
+         <div>
+            <h3>{{ courses_count }}+</h3>
+            <p>Online Courses</p>
+         </div>
+      </div>
+
+      <div class="box">
+         <i class="fas fa-user-graduate"></i>
+         <div>
+            <h3>{{ students_count }}+</h3>
+            <p>Brilliant Students</p>
+         </div>
+      </div>
+
+      <div class="box">
+         <i class="fas fa-chalkboard-user"></i>
+         <div>
+            <h3>{{ teachers_count }}+</h3>
+            <p>Expert Tutors</p>
+         </div>
+      </div>
+
+      <div class="box">
+         <i class="fas fa-briefcase"></i>
+         <div>
+            <h3>100%</h3>
+            <p>Job Placement Support</p>
+         </div>
+      </div>
+   </div>
+</section>
+
+<section class="reviews">
+   <h1 class="heading">Student Reviews</h1>
+
+   <div class="box-container">
+      {% for review in reviews %}
+         <div class="box">
+            <p>{{ review.comment }}</p>
+            <div class="student">
+               {% if review.user.profile.profile_picture %}
+                  <img src="{{ review.user.profile.profile_picture.url }}" alt="">
+               {% else %}
+                  <img src="{% static 'images/pic-2.jpg' %}" alt="">
+               {% endif %}
+               <div>
+                  <h3>{{ review.user.first_name }} {{ review.user.last_name }}</h3>
+                  <div class="stars">
+                     {% for i in "12345" %}
+                        {% if forloop.counter <= review.rating %}
+                           <i class="fas fa-star"></i>
+                        {% elif forloop.counter == review.rating|add:0.5|floatformat:0 %}
+                           <i class="fas fa-star-half-alt"></i>
+                        {% endif %}
+                     {% endfor %}
+                  </div>
+               </div>
+            </div>
+         </div>
+      {% empty %}
+         <div class="box">
+            <p class="small-text">No reviews yet. Be the first to share your experience!</p>
+         </div>
+      {% endfor %}
+   </div>
+</section>
+{% endblock %}

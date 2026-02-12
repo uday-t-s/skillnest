@@ -1,0 +1,226 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+
+{% block title %}Add Education - SkillNest{% endblock %}
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-container h2 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="date"],
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-family: inherit;
+        box-sizing: border-box;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    .checkbox-group label {
+        margin: 0;
+        cursor: pointer;
+        font-weight: normal;
+    }
+
+    .two-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .form-actions button,
+    .form-actions a {
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #2563eb, #7c3aed);
+        color: white;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-cancel {
+        background: #f3f4f6;
+        color: #1f2937;
+        border: 1px solid #e5e7eb;
+    }
+
+    .btn-cancel:hover {
+        background: #e5e7eb;
+    }
+
+    .help-text {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+
+    @media (max-width: 600px) {
+        .two-column {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="form-container">
+    <h2><i class="fas fa-graduation-cap"></i> Add Education</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label for="school_name">School/University Name *</label>
+            {{ form.school_name }}
+            {% if form.school_name.errors %}
+                <span style="color: #ef4444; font-size: 0.9rem;">{{ form.school_name.errors.0 }}</span>
+            {% endif %}
+            <p class="help-text">Name of your school or university</p>
+        </div>
+
+        <div class="form-group">
+            <label for="degree">Degree *</label>
+            {{ form.degree }}
+            {% if form.degree.errors %}
+                <span style="color: #ef4444; font-size: 0.9rem;">{{ form.degree.errors.0 }}</span>
+            {% endif %}
+            <p class="help-text">e.g., Bachelor of Science, Master of Arts, Diploma</p>
+        </div>
+
+        <div class="form-group">
+            <label for="field_of_study">Field of Study *</label>
+            {{ form.field_of_study }}
+            {% if form.field_of_study.errors %}
+                <span style="color: #ef4444; font-size: 0.9rem;">{{ form.field_of_study.errors.0 }}</span>
+            {% endif %}
+            <p class="help-text">e.g., Computer Science, Business, Engineering</p>
+        </div>
+
+        <div class="two-column">
+            <div class="form-group">
+                <label for="start_date">Start Date *</label>
+                {{ form.start_date }}
+                {% if form.start_date.errors %}
+                    <span style="color: #ef4444; font-size: 0.9rem;">{{ form.start_date.errors.0 }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="end_date">End Date</label>
+                {{ form.end_date }}
+                {% if form.end_date.errors %}
+                    <span style="color: #ef4444; font-size: 0.9rem;">{{ form.end_date.errors.0 }}</span>
+                {% endif %}
+                <p class="help-text">Leave blank if currently studying</p>
+            </div>
+        </div>
+
+        <div class="form-group checkbox-group">
+            {{ form.is_current }}
+            {{ form.is_current.label_tag }}
+            <p class="help-text" style="margin: 0;">Check if you're currently studying here</p>
+        </div>
+
+        <div class="form-group">
+            <label for="grade">Grade/GPA (Optional)</label>
+            {{ form.grade }}
+            {% if form.grade.errors %}
+                <span style="color: #ef4444; font-size: 0.9rem;">{{ form.grade.errors.0 }}</span>
+            {% endif %}
+            <p class="help-text">e.g., 3.8, A+, First Class</p>
+        </div>
+
+        <div class="form-group">
+            <label for="activities">Activities & Societies (Optional)</label>
+            {{ form.activities }}
+            {% if form.activities.errors %}
+                <span style="color: #ef4444; font-size: 0.9rem;">{{ form.activities.errors.0 }}</span>
+            {% endif %}
+            <p class="help-text">Clubs, societies, or activities you were involved in</p>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-submit"><i class="fas fa-plus"></i> Add Education</button>
+            <a href="{% url 'portfolio' request.user.username %}" class="btn-cancel"><i class="fas fa-arrow-left"></i> Cancel</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

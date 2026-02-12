@@ -1,0 +1,468 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+{% block title %}Course Management - SkillNest{% endblock %}
+{% block content %}
+<div class="teacher-management-container">
+    <div class="management-header">
+        <h1><i class="fas fa-cogs"></i> Course Management</h1>
+        <p>Manage your courses, lessons, and student enrollments</p>
+        <a href="{% url 'teacher_create_course' %}" class="btn-primary">
+            <i class="fas fa-plus"></i> Create New Course
+        </a>
+    </div>
+
+    {% if courses %}
+        <div class="courses-grid">
+            {% for course in courses %}
+                <div class="course-card">
+                    <div class="course-header">
+                        <h3 class="course-title">{{ course.title }}</h3>
+                        <div class="course-actions">
+                            <a href="{% url 'course_detail' course.id %}" class="btn-secondary" title="View Course">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'teacher_course_students' course.id %}" class="btn-secondary" title="View Students">
+                                <i class="fas fa-users"></i> ({{ course.enrollments.count }})
+                            </a>
+                            <a href="{% url 'teacher_edit_course' course.id %}" class="btn-secondary" title="Edit Course">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'teacher_delete_course' course.id %}" class="btn-danger" title="Delete Course">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="course-meta">
+                        <span class="meta-item">
+                            <i class="fas fa-tag"></i> {{ course.category|default:"Uncategorized" }}
+                        </span>
+                        <span class="meta-item">
+                            <i class="fas fa-calendar"></i> {{ course.created_at|date:"M d, Y" }}
+                        </span>
+                        <span class="meta-item">
+                            <i class="fas fa-users"></i> {{ course.enrollments.count }} Students
+                        </span>
+                    </div>
+
+                    <p class="course-description">{{ course.description|truncatewords:30 }}</p>
+
+                    <div class="lessons-section">
+                        <h4><i class="fas fa-list"></i> Lessons ({{ course.lessons.count }})</h4>
+                        {% if course.lessons.all %}
+                            <div class="lessons-list">
+                                {% for lesson in course.lessons.all %}
+                                    <div class="lesson-item">
+                                        <div class="lesson-info">
+                                            <span class="lesson-number">{{ forloop.counter }}</span>
+                                            <div class="lesson-details">
+                                                <h5>{{ lesson.title }}</h5>
+                                                <span class="lesson-duration">
+                                                    <i class="fas fa-clock"></i> {{ lesson.duration_minutes }} min
+                                                </span>
+                                                {% if lesson.video_file %}
+                                                    <span class="video-type uploaded">Uploaded Video</span>
+                                                {% elif lesson.video_url %}
+                                                    <span class="video-type url">Video URL</span>
+                                                {% else %}
+                                                    <span class="video-type none">No Video</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="lesson-actions">
+                                            <a href="{% url 'teacher_edit_lesson' lesson.id %}" class="btn-small" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'teacher_delete_lesson' lesson.id %}" class="btn-small btn-danger" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="no-lessons">No lessons added yet.</p>
+                        {% endif %}
+
+                        <div class="add-lesson">
+                            <a href="{% url 'teacher_add_lesson' course.id %}" class="btn-outline">
+                                <i class="fas fa-plus"></i> Add Lesson
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-book-open"></i>
+            </div>
+            <h3>No Courses Yet</h3>
+            <p>Start creating your first course to begin teaching on SkillNest.</p>
+            <a href="{% url 'teacher_create_course' %}" class="btn-primary">
+                <i class="fas fa-plus"></i> Create Your First Course
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .teacher-management-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .management-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .management-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .management-header h1 i {
+        font-size: 2rem;
+    }
+
+    .management-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 1.5rem;
+    }
+
+    .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .course-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid #e5e7eb;
+    }
+
+    .course-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .course-header {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .course-title {
+        margin: 0;
+        font-size: 1.4rem;
+        color: #1f2937;
+        flex: 1;
+    }
+
+    .course-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .course-meta {
+        padding: 1rem 1.5rem;
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .course-description {
+        padding: 0 1.5rem;
+        color: #4b5563;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .lessons-section {
+        padding: 1.5rem;
+        background: #f8fafc;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .lessons-section h4 {
+        margin: 0 0 1rem 0;
+        color: #374151;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .lessons-list {
+        margin-bottom: 1rem;
+    }
+
+    .lesson-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        border: 1px solid #e5e7eb;
+        transition: background 0.2s ease;
+    }
+
+    .lesson-item:hover {
+        background: #f9fafb;
+    }
+
+    .lesson-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+    }
+
+    .lesson-number {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: #667eea;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.8rem;
+    }
+
+    .lesson-details {
+        flex: 1;
+    }
+
+    .lesson-details h5 {
+        margin: 0 0 0.25rem 0;
+        font-size: 1rem;
+        color: #1f2937;
+    }
+
+    .lesson-duration {
+        font-size: 0.8rem;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .video-type {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 12px;
+        font-weight: 500;
+        margin-left: 0.5rem;
+    }
+
+    .video-type.uploaded {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .video-type.url {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .video-type.none {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .lesson-actions {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    .no-lessons {
+        text-align: center;
+        color: #6b7280;
+        font-style: italic;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+
+    .add-lesson {
+        text-align: center;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        margin-top: 2rem;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: #d1d5db;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: #6b7280;
+        margin-bottom: 2rem;
+    }
+
+    /* Button Styles */
+    .btn-primary, .btn-secondary, .btn-danger, .btn-outline, .btn-small {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+    .btn-secondary:hover {
+        background: #e5e7eb;
+        transform: translateY(-1px);
+    }
+
+    .btn-danger {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .btn-danger:hover {
+        background: #fecaca;
+        transform: translateY(-1px);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-outline:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .btn-small {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    @media (max-width: 768px) {
+        .teacher-management-container {
+            padding: 1rem;
+        }
+
+        .management-header {
+            padding: 1.5rem;
+        }
+
+        .management-header h1 {
+            font-size: 2rem;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .courses-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .course-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .course-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+
+        .course-meta {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .lesson-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .lesson-info {
+            width: 100%;
+        }
+
+        .lesson-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+    }
+</style>
+{% endblock %}

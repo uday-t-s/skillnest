@@ -1,0 +1,644 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+
+{% block title %}Contact Us - SkillNest{% endblock %}
+
+{% block content %}
+<section class="contact-section">
+   <!-- Header -->
+   <div class="contact-header">
+      <div class="header-content">
+         <h1>Get in Touch</h1>
+         <p>We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+      </div>
+   </div>
+
+   <!-- Contact Info Cards -->
+   <div class="contact-info-container">
+      <div class="info-card">
+         <div class="info-icon phone-icon">
+            <i class="fas fa-phone-alt"></i>
+         </div>
+         <h3>Phone</h3>
+         <p class="info-text">Reach out to us directly</p>
+         <a href="tel:+1234567890" class="info-link">+1 (234) 567-890</a>
+         <a href="tel:+1112223333" class="info-link">+1 (111) 222-3333</a>
+      </div>
+
+      <div class="info-card">
+         <div class="info-icon email-icon">
+            <i class="fas fa-envelope"></i>
+         </div>
+         <h3>Email</h3>
+         <p class="info-text">Send us an email anytime</p>
+         <a href="mailto:skillnest@example.com" class="info-link">skillnest@example.com</a>
+         <a href="mailto:support@skillnest.com" class="info-link">support@skillnest.com</a>
+      </div>
+
+      <div class="info-card">
+         <div class="info-icon location-icon">
+            <i class="fas fa-map-marker-alt"></i>
+         </div>
+         <h3>Location</h3>
+         <p class="info-text">Visit our office</p>
+         <p class="address">123 Learning Street<br>Education City, ED 12345</p>
+      </div>
+
+      <div class="info-card">
+         <div class="info-icon time-icon">
+            <i class="fas fa-clock"></i>
+         </div>
+         <h3>Hours</h3>
+         <p class="info-text">We're available</p>
+         <p class="hours">Mon - Fri: 9:00 AM - 6:00 PM<br>Sat - Sun: 10:00 AM - 4:00 PM</p>
+      </div>
+   </div>
+
+   <!-- Main Contact Form & Image -->
+   <div class="contact-main">
+      <!-- Contact Image -->
+      <div class="contact-image">
+         <img src="{% static 'images/contact-img.svg' %}" alt="Contact Us" class="illustration">
+      </div>
+
+      <!-- Contact Form -->
+      <div class="contact-form-wrapper">
+         <h2>Send Us a Message</h2>
+         <form method="post" class="contact-form">
+            {% csrf_token %}
+            
+            {% if messages %}
+               <div class="alert alert-success">
+                  {% for message in messages %}
+                     <p>{{ message }}</p>
+                  {% endfor %}
+               </div>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+               <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="form-row">
+               <div class="form-group">
+                  <label for="name">Full Name *</label>
+                  <input type="text" id="name" placeholder="Your full name" name="name" required maxlength="50" 
+                         class="form-control {% if form.name.errors %}error-input{% endif %}" 
+                         value="{{ form.name.value|default:'' }}">
+                  {% if form.name.errors %}<span class="error-text"><i class="fas fa-exclamation-circle"></i> {{ form.name.errors.0 }}</span>{% endif %}
+               </div>
+
+               <div class="form-group">
+                  <label for="email">Email Address *</label>
+                  <input type="email" id="email" placeholder="your.email@example.com" name="email" required maxlength="50" 
+                         class="form-control {% if form.email.errors %}error-input{% endif %}" 
+                         value="{{ form.email.value|default:'' }}">
+                  {% if form.email.errors %}<span class="error-text"><i class="fas fa-exclamation-circle"></i> {{ form.email.errors.0 }}</span>{% endif %}
+               </div>
+            </div>
+
+            <div class="form-row">
+               <div class="form-group">
+                  <label for="phone">Phone Number *</label>
+                  <input type="tel" id="phone" placeholder="+1 (123) 456-7890" name="phone" required maxlength="20" 
+                         class="form-control {% if form.phone.errors %}error-input{% endif %}" 
+                         value="{{ form.phone.value|default:'' }}">
+                  {% if form.phone.errors %}<span class="error-text"><i class="fas fa-exclamation-circle"></i> {{ form.phone.errors.0 }}</span>{% endif %}
+               </div>
+
+               <div class="form-group">
+                  <label for="subject">Subject *</label>
+                  <select id="subject" name="subject" class="form-control">
+                     <option value="">Select a subject</option>
+                     <option value="general">General Inquiry</option>
+                     <option value="support">Technical Support</option>
+                     <option value="feedback">Feedback</option>
+                     <option value="partnership">Partnership</option>
+                     <option value="other">Other</option>
+                  </select>
+               </div>
+            </div>
+
+            <div class="form-group">
+               <label for="message">Message *</label>
+               <textarea id="message" name="message" placeholder="Tell us more about your inquiry..." required maxlength="1000" rows="6" 
+                         class="form-control {% if form.message.errors %}error-input{% endif %}">{{ form.message.value|default:'' }}</textarea>
+               {% if form.message.errors %}<span class="error-text"><i class="fas fa-exclamation-circle"></i> {{ form.message.errors.0 }}</span>{% endif %}
+               <span class="char-count"><span id="char-count">0</span>/1000</span>
+            </div>
+
+            <button type="submit" class="submit-btn">
+               <i class="fas fa-paper-plane"></i> Send Message
+            </button>
+         </form>
+      </div>
+   </div>
+
+   <!-- FAQ Section (Optional) -->
+   <div class="faq-section">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-container">
+         <div class="faq-item">
+            <div class="faq-question">
+               <span>What is SkillNest?</span>
+               <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+               <p>SkillNest is a free online learning platform that offers courses in various skills and helps connect learners with job opportunities.</p>
+            </div>
+         </div>
+
+         <div class="faq-item">
+            <div class="faq-question">
+               <span>Is there a registration fee?</span>
+               <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+               <p>No, SkillNest is completely free. You can register, enroll in courses, and earn certificates at no cost.</p>
+            </div>
+         </div>
+
+         <div class="faq-item">
+            <div class="faq-question">
+               <span>How quickly will you respond to my message?</span>
+               <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+               <p>We aim to respond to all inquiries within 24-48 hours during business days.</p>
+            </div>
+         </div>
+
+         <div class="faq-item">
+            <div class="faq-question">
+               <span>Can I become a course instructor?</span>
+               <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+               <p>Yes! We're always looking for passionate educators. Please contact us with details about your expertise and teaching experience.</p>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+
+<style>
+   /* Contact Section */
+   .contact-section {
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      padding: 2rem 0;
+   }
+
+   /* Contact Header */
+   .contact-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 4rem 2rem;
+      text-align: center;
+      margin-bottom: 3rem;
+      border-radius: 0;
+   }
+
+   .header-content h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      margin-bottom: 0.8rem;
+      letter-spacing: -0.5px;
+   }
+
+   .header-content p {
+      font-size: 1.1rem;
+      opacity: 0.95;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+   }
+
+   /* Contact Info Container */
+   .contact-info-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto 4rem;
+      padding: 0 2rem;
+   }
+
+   .info-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      text-align: center;
+      transition: all 0.3s ease;
+      border-top: 4px solid transparent;
+   }
+
+   .info-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+   }
+
+   .info-icon {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 1.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: white;
+   }
+
+   .phone-icon {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+   }
+
+   .email-icon {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+   }
+
+   .location-icon {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+   }
+
+   .time-icon {
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+   }
+
+   .info-card h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.5rem;
+   }
+
+   .info-text {
+      color: #6b7280;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+   }
+
+   .info-link {
+      display: block;
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+      margin: 0.4rem 0;
+      transition: all 0.2s ease;
+   }
+
+   .info-link:hover {
+      color: #764ba2;
+      text-decoration: underline;
+   }
+
+   .address, .hours {
+      color: #4b5563;
+      font-size: 0.95rem;
+      line-height: 1.8;
+      margin: 0.5rem 0;
+   }
+
+   /* Contact Main Section */
+   .contact-main {
+      max-width: 1200px;
+      margin: 0 auto 4rem;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+   }
+
+   .contact-image {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+   }
+
+   .illustration {
+      max-width: 100%;
+      height: auto;
+      filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.1));
+   }
+
+   /* Contact Form */
+   .contact-form-wrapper h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 2rem;
+      letter-spacing: -0.3px;
+   }
+
+   .contact-form {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+   }
+
+   .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+   }
+
+   .form-group {
+      margin-bottom: 1.5rem;
+   }
+
+   .form-group label {
+      display: block;
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 0.6rem;
+      font-size: 0.95rem;
+      letter-spacing: 0.3px;
+   }
+
+   .form-control {
+      width: 100%;
+      padding: 0.9rem 1.1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: all 0.3s ease;
+      color: #0f172a;
+   }
+
+   .form-control:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      background: #f9fafb;
+   }
+
+   .form-control.error-input {
+      border-color: #ef4444;
+   }
+
+   .form-control.error-input:focus {
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+   }
+
+   textarea.form-control {
+      resize: vertical;
+      min-height: 150px;
+      font-family: inherit;
+   }
+
+   .error-text {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #ef4444;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      font-weight: 500;
+   }
+
+   .char-count {
+      display: block;
+      text-align: right;
+      color: #9ca3af;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+   }
+
+   .alert {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      font-weight: 500;
+   }
+
+   .alert-success {
+      background: #d1fae5;
+      border-left: 4px solid #10b981;
+      color: #065f46;
+   }
+
+   .alert-danger {
+      background: #fee2e2;
+      border-left: 4px solid #ef4444;
+      color: #7f1d1d;
+   }
+
+   .submit-btn {
+      width: 100%;
+      padding: 1.1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      text-transform: uppercase;
+      margin-top: 1rem;
+   }
+
+   .submit-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+   }
+
+   .submit-btn:active {
+      transform: translateY(-1px);
+   }
+
+   /* FAQ Section */
+   .faq-section {
+      max-width: 1000px;
+      margin: 4rem auto 0;
+      padding: 0 2rem;
+      background: white;
+      padding: 4rem 2rem;
+      border-radius: 12px;
+      margin-left: 2rem;
+      margin-right: 2rem;
+   }
+
+   .faq-section h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 3rem;
+   }
+
+   .faq-container {
+      display: grid;
+      gap: 1rem;
+   }
+
+   .faq-item {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+   }
+
+   .faq-item:hover {
+      border-color: #667eea;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+   }
+
+   .faq-question {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      cursor: pointer;
+      background: #f9fafb;
+      font-weight: 600;
+      color: #0f172a;
+      transition: all 0.3s ease;
+      user-select: none;
+   }
+
+   .faq-question:hover {
+      background: #f0f4ff;
+      color: #667eea;
+   }
+
+   .faq-question i {
+      transition: transform 0.3s ease;
+   }
+
+   .faq-item.active .faq-question {
+      background: #f0f4ff;
+      color: #667eea;
+   }
+
+   .faq-item.active .faq-question i {
+      transform: rotate(180deg);
+   }
+
+   .faq-answer {
+      padding: 1.5rem;
+      background: white;
+      color: #4b5563;
+      line-height: 1.8;
+      display: none;
+   }
+
+   .faq-item.active .faq-answer {
+      display: block;
+   }
+
+   .faq-answer p {
+      margin: 0;
+   }
+
+   /* Responsive Design */
+   @media (max-width: 768px) {
+      .header-content h1 {
+         font-size: 2rem;
+      }
+
+      .contact-info-container {
+         grid-template-columns: 1fr 1fr;
+         gap: 1.5rem;
+         margin-bottom: 2.5rem;
+      }
+
+      .contact-main {
+         grid-template-columns: 1fr;
+         gap: 2rem;
+         margin-bottom: 2.5rem;
+      }
+
+      .contact-form {
+         padding: 1.5rem;
+      }
+
+      .form-row {
+         grid-template-columns: 1fr;
+         gap: 1rem;
+      }
+
+      .faq-section {
+         padding: 2rem;
+         margin-left: 1rem;
+         margin-right: 1rem;
+      }
+
+      .contact-main {
+         padding: 0 1rem;
+      }
+
+      .contact-info-container {
+         padding: 0 1rem;
+      }
+   }
+
+   @media (max-width: 480px) {
+      .header-content h1 {
+         font-size: 1.5rem;
+      }
+
+      .header-content p {
+         font-size: 0.95rem;
+      }
+
+      .contact-info-container {
+         grid-template-columns: 1fr;
+      }
+
+      .info-card {
+         padding: 1.5rem;
+      }
+
+      .contact-form {
+         padding: 1rem;
+      }
+
+      .contact-form-wrapper h2 {
+         font-size: 1.5rem;
+      }
+
+      .faq-question {
+         padding: 1rem;
+         font-size: 0.95rem;
+      }
+
+      .faq-answer {
+         padding: 1rem;
+      }
+   }
+</style>
+
+<script>
+   // Character counter
+   document.addEventListener('DOMContentLoaded', function() {
+      const messageField = document.getElementById('message');
+      const charCount = document.getElementById('char-count');
+
+      if (messageField) {
+         messageField.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+         });
+      }
+
+      // FAQ Toggle
+      const faqItems = document.querySelectorAll('.faq-item .faq-question');
+      faqItems.forEach(item => {
+         item.addEventListener('click', function() {
+            const parent = this.closest('.faq-item');
+            parent.classList.toggle('active');
+         });
+      });
+   });
+</script>
+{% endblock %}

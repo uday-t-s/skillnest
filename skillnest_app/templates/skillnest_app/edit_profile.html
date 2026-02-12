@@ -1,0 +1,497 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - SkillNest{% endblock %}
+
+{% block content %}
+<div class="edit-profile-container">
+    <div class="form-header">
+        <h1><i class="fas fa-user-edit"></i> Edit Profile</h1>
+        <p>Update your personal information and profile picture</p>
+    </div>
+
+    <div class="form-card">
+        <form method="POST" enctype="multipart/form-data" class="profile-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="error-message">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="form-section">
+                <h3><i class="fas fa-user"></i> Personal Information</h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.first_name.id_for_label }}">First Name *</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <div class="error-message">{{ form.first_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.last_name.id_for_label }}">Last Name *</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <div class="error-message">{{ form.last_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">Email Address *</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="error-message">{{ form.email.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.phone.id_for_label }}">Phone Number</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                        <div class="error-message">{{ form.phone.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3><i class="fas fa-id-card"></i> Profile Details</h3>
+
+                <div class="form-group">
+                    <label for="{{ form.bio.id_for_label }}">Bio</label>
+                    {{ form.bio }}
+                    <small class="form-help">Tell others about yourself, your experience, and what you teach</small>
+                    {% if form.bio.errors %}
+                        <div class="error-message">{{ form.bio.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.profile_picture.id_for_label }}">Profile Picture</label>
+                    {{ form.profile_picture }}
+                    <small class="form-help">Upload a professional photo (JPG, PNG, max 5MB)</small>
+                    {% if form.profile_picture.errors %}
+                        <div class="error-message">{{ form.profile_picture.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'portfolio' request.user.username %}" class="btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Profile
+                </a>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Main Container */
+    .edit-profile-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        min-height: calc(100vh - 200px);
+    }
+
+    /* Form Header */
+    .form-header {
+        text-align: center;
+        margin-bottom: 3.5rem;
+        animation: slideInDown 0.6s ease-out;
+    }
+
+    .form-header h1 {
+        font-size: 2.8rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .form-header h1 i {
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, #2563eb, #10b981);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .form-header p {
+        color: #6b7280;
+        font-size: 1.1rem;
+        margin: 0;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+    }
+
+    /* Form Card */
+    .form-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12),
+                    0 0 0 1px rgba(37, 99, 235, 0.08);
+        overflow: hidden;
+        border: 1px solid rgba(37, 99, 235, 0.12);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: slideInUp 0.6s ease-out;
+    }
+
+    .form-card:hover {
+        box-shadow: 0 25px 50px rgba(15, 23, 42, 0.16),
+                    0 0 0 1px rgba(37, 99, 235, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .profile-form {
+        padding: 2.5rem;
+    }
+
+    /* Form Sections */
+    .form-section {
+        margin-bottom: 2.5rem;
+        padding-bottom: 2rem;
+        border-bottom: 2px solid #f3f4f6;
+        animation: slideInUp 0.6s ease-out;
+    }
+
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .form-section h3 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 1.75rem;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        position: relative;
+        padding-left: 0;
+    }
+
+    .form-section h3::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 24px;
+        background: linear-gradient(180deg, #2563eb, #10b981);
+        border-radius: 2px;
+        opacity: 0.8;
+    }
+
+    .form-section h3 i {
+        background: linear-gradient(135deg, #2563eb, #10b981);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-size: 1.4rem;
+        margin-left: 0.5rem;
+    }
+
+    /* Form Groups */
+    .form-group {
+        margin-bottom: 1.75rem;
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 0.65rem;
+        font-size: 0.95rem;
+        text-transform: capitalize;
+        letter-spacing: 0.3px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 0.95rem 1.1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: #f9fafb;
+        color: #111827;
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+        color: #9ca3af;
+    }
+
+    .form-group input:hover,
+    .form-group textarea:hover,
+    .form-group select:hover {
+        border-color: #d1d5db;
+        background: white;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #2563eb;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1),
+                    0 0 0 2px rgba(37, 99, 235, 0.05);
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 130px;
+        font-family: inherit;
+        line-height: 1.6;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .form-help {
+        color: #6b7280;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+        display: block;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+    }
+
+    /* Error Messages */
+    .error-message {
+        color: #dc2626;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        display: block;
+        background: #fef2f2;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        border-left: 4px solid #dc2626;
+        animation: shake 0.3s ease-in-out;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 2.5rem;
+        border-top: 2px solid #f3f4f6;
+        margin-top: 2.5rem;
+        gap: 1rem;
+        animation: slideInUp 0.6s ease-out;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.65rem;
+        padding: 0.9rem 1.8rem;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.95rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        cursor: pointer;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+    }
+
+    /* Primary Button */
+    .btn-primary {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #10b981 100%);
+        color: white;
+        box-shadow: 0 12px 24px rgba(37, 99, 235, 0.3),
+                    0 4px 8px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 16px 32px rgba(37, 99, 235, 0.4),
+                    0 6px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-primary:active {
+        transform: translateY(-1px);
+    }
+
+    /* Secondary Button */
+    .btn-secondary {
+        background: white;
+        color: #374151;
+        border: 2px solid #d1d5db;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-secondary:hover {
+        background: #f9fafb;
+        border-color: #2563eb;
+        color: #2563eb;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(37, 99, 235, 0.15);
+    }
+
+    /* Animations */
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes shake {
+        0%, 100% {
+            transform: translateX(0);
+        }
+        25% {
+            transform: translateX(-5px);
+        }
+        75% {
+            transform: translateX(5px);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .edit-profile-container {
+            padding: 1rem 0.75rem;
+            margin: 1.5rem auto;
+        }
+
+        .form-header h1 {
+            font-size: 2.2rem;
+        }
+
+        .form-header p {
+            font-size: 1rem;
+        }
+
+        .profile-form {
+            padding: 1.75rem;
+        }
+
+        .form-section h3 {
+            font-size: 1.2rem;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            padding: 0.85rem 1rem;
+            font-size: 16px;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+            gap: 1rem;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            width: 100%;
+            padding: 0.95rem 1.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .edit-profile-container {
+            padding: 0.75rem;
+        }
+
+        .form-header h1 {
+            font-size: 1.8rem;
+            gap: 0.5rem;
+            flex-direction: column;
+        }
+
+        .form-header h1 i {
+            font-size: 2rem;
+        }
+
+        .profile-form {
+            padding: 1.25rem;
+        }
+
+        .form-section {
+            margin-bottom: 1.75rem;
+            padding-bottom: 1.5rem;
+        }
+
+        .form-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            font-size: 0.9rem;
+            padding: 0.85rem 1.2rem;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,233 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+{% block title %}Delete Course - SkillNest{% endblock %}
+{% block content %}
+<div class="delete-confirmation-container">
+    <div class="confirmation-card">
+        <div class="warning-header">
+            <div class="warning-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h1>Delete Course</h1>
+            <p class="warning-text">This action cannot be undone</p>
+        </div>
+
+        <div class="course-details">
+            <h2>{{ course.title }}</h2>
+            <div class="course-info">
+                <span class="info-item">
+                    <i class="fas fa-tag"></i> Category: {{ course.category|default:"Uncategorized" }}
+                </span>
+                <span class="info-item">
+                    <i class="fas fa-users"></i> Students: {{ course.enrollments.count }}
+                </span>
+                <span class="info-item">
+                    <i class="fas fa-clock"></i> Duration: {{ course.duration_hours }} hours
+                </span>
+                <span class="info-item">
+                    <i class="fas fa-book"></i> Lessons: {{ course.lessons.count }}
+                </span>
+            </div>
+        </div>
+
+        <div class="confirmation-message">
+            <p>Are you sure you want to permanently delete this course? This will remove all lessons, student enrollments, and associated content. This action cannot be recovered.</p>
+            {% if course.enrollments.exists %}
+                <div class="warning-box">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <strong>Warning:</strong> This course has {{ course.enrollments.count }} enrolled student(s). Deleting it will remove their access and progress.
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="action-buttons">
+            <a href="{% url 'teacher_course_management' %}" class="btn-secondary">
+                <i class="fas fa-arrow-left"></i> Cancel
+            </a>
+            <form method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-danger">
+                    <i class="fas fa-trash"></i> Yes, Delete Course
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .delete-confirmation-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .confirmation-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .warning-header {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .warning-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+    }
+
+    .warning-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .warning-text {
+        opacity: 0.9;
+        font-size: 1.1rem;
+    }
+
+    .course-details {
+        padding: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .course-details h2 {
+        color: #1f2937;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .course-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6b7280;
+        font-size: 0.95rem;
+    }
+
+    .info-item i {
+        color: #667eea;
+    }
+
+    .confirmation-message {
+        padding: 2rem;
+        background: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .confirmation-message p {
+        color: #374151;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .warning-box {
+        background: #fef3c7;
+        border: 1px solid #f59e0b;
+        border-radius: 8px;
+        padding: 1rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        color: #92400e;
+    }
+
+    .warning-box i {
+        color: #f59e0b;
+        margin-top: 0.125rem;
+    }
+
+    .action-buttons {
+        padding: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-secondary, .btn-danger {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+    .btn-secondary:hover {
+        background: #e5e7eb;
+        transform: translateY(-1px);
+    }
+
+    .btn-danger {
+        background: #dc2626;
+        color: white;
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    .btn-danger:hover {
+        background: #b91c1c;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+    }
+
+    @media (max-width: 768px) {
+        .delete-confirmation-container {
+            margin: 1rem auto;
+        }
+
+        .warning-header {
+            padding: 1.5rem;
+        }
+
+        .warning-icon {
+            font-size: 2.5rem;
+        }
+
+        .warning-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .course-details, .confirmation-message, .action-buttons {
+            padding: 1.5rem;
+        }
+
+        .course-info {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn-secondary, .btn-danger {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}

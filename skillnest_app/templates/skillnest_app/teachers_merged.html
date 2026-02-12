@@ -1,0 +1,39 @@
+{% extends 'skillnest_app/base.html' %}
+{% load static %}
+
+{% block title %}Teachers - SkillNest{% endblock %}
+
+{% block content %}
+<section class="teachers">
+   <h1 class="heading">Expert Teachers</h1>
+
+   <div class="box-container">
+      <!-- Teachers List -->
+      {% for teacher in teachers %}
+         {% if teacher.first_name or teacher.last_name %}
+         <div class="box">
+            <div class="tutor">
+               {% if teacher.profile.profile_picture %}
+                  <img src="{{ teacher.profile.profile_picture.url }}" alt="">
+               {% else %}
+                  <img src="{% static 'images/pic-2.jpg' %}" alt="">
+               {% endif %}
+               <div>
+                  <h3>{{ teacher.first_name }} {{ teacher.last_name }}</h3>
+                  <span>{{ teacher.profile.bio|default:"Developer"|truncatewords:3 }}</span>
+               </div>
+            </div>
+            <p>Total Courses : <span>{{ teacher.courses_taught.count }}</span></p>
+            <p>Total Students : <span>{{ teacher.profile.course_instructor_count|default:0 }}</span></p>
+            <p>Member Since : <span>{{ teacher.date_joined|date:"M Y" }}</span></p>
+            <a href="{% url 'teacher_profile' teacher.username %}" class="inline-btn">View Profile</a>
+         </div>
+         {% endif %}
+      {% empty %}
+         <div class="box">
+            <p class="small-text">No teachers available yet.</p>
+         </div>
+      {% endfor %}
+   </div>
+</section>
+{% endblock %}
