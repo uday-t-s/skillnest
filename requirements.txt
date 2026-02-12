@@ -1,7 +1,4 @@
 Django>=4.2,<5
 gunicorn
 whitenoise
-Pillow==9.5.0
-sqlparse
-asgiref
-tzdata
+Pillow
